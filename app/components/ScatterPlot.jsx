@@ -64,15 +64,15 @@ export default function ScatterPlot({ regions, euCountries, onSelectRegion, sele
         <g transform={`translate(${PADDING.left},${PADDING.top})`}>
           {/* Grid */}
           {xTicks.map(v => (
-            <line key={v} x1={toX(v)} x2={toX(v)} y1={0} y2={plotH} stroke="#334155" strokeWidth={1} strokeDasharray="4 4" />
+            <line key={v} x1={toX(v)} x2={toX(v)} y1={0} y2={plotH} stroke="#E2DFD8" strokeWidth={1} strokeDasharray="4 4" />
           ))}
           {yTicks.map(v => (
-            <line key={v} x1={0} x2={plotW} y1={toY(v)} y2={toY(v)} stroke="#334155" strokeWidth={1} strokeDasharray="4 4" />
+            <line key={v} x1={0} x2={plotW} y1={toY(v)} y2={toY(v)} stroke="#E2DFD8" strokeWidth={1} strokeDasharray="4 4" />
           ))}
 
           {/* Quadrant dividers */}
-          <line x1={midX} x2={midX} y1={0} y2={plotH} stroke="#475569" strokeWidth={1.5} strokeDasharray="8 4" />
-          <line x1={0} x2={plotW} y1={midY} y2={midY} stroke="#475569" strokeWidth={1.5} strokeDasharray="8 4" />
+          <line x1={midX} x2={midX} y1={0} y2={plotH} stroke="#C5CCC9" strokeWidth={1.5} strokeDasharray="8 4" />
+          <line x1={0} x2={plotW} y1={midY} y2={midY} stroke="#C5CCC9" strokeWidth={1.5} strokeDasharray="8 4" />
 
           {/* Quadrant labels */}
           {quadrants.map((q, i) => (
@@ -84,24 +84,24 @@ export default function ScatterPlot({ regions, euCountries, onSelectRegion, sele
           {/* X Axis */}
           {xTicks.map(v => (
             <g key={v} transform={`translate(${toX(v)},${plotH})`}>
-              <line y2={5} stroke="#64748b" />
-              <text y={18} textAnchor="middle" fill="#94a3b8" fontSize={11}>
+              <line y2={5} stroke="#A8A69F" />
+              <text y={18} textAnchor="middle" fill="#6B6860" fontSize={11}>
                 €{v >= 1000 ? (v / 1000) + 'k' : v}
               </text>
             </g>
           ))}
-          <text x={plotW / 2} y={plotH + 48} textAnchor="middle" fill="#94a3b8" fontSize={12} fontWeight={600}>
+          <text x={plotW / 2} y={plotH + 48} textAnchor="middle" fill="#6B6860" fontSize={12} fontWeight={600}>
             GVA per Capita (€)
           </text>
 
           {/* Y Axis */}
           {yTicks.map(v => (
             <g key={v} transform={`translate(0,${toY(v)})`}>
-              <line x2={-5} stroke="#64748b" />
-              <text x={-10} dy="0.35em" textAnchor="end" fill="#94a3b8" fontSize={11}>{v}</text>
+              <line x2={-5} stroke="#A8A69F" />
+              <text x={-10} dy="0.35em" textAnchor="end" fill="#6B6860" fontSize={11}>{v}</text>
             </g>
           ))}
-          <text transform={`translate(-52,${plotH / 2}) rotate(-90)`} textAnchor="middle" fill="#94a3b8" fontSize={12} fontWeight={600}>
+          <text transform={`translate(-52,${plotH / 2}) rotate(-90)`} textAnchor="middle" fill="#6B6860" fontSize={12} fontWeight={600}>
             Infrastructure Score (0–100)
           </text>
 
@@ -118,8 +118,8 @@ export default function ScatterPlot({ regions, euCountries, onSelectRegion, sele
                   onMouseEnter={e => setTooltip({ x: cx + PADDING.left, y: cy + PADDING.top, data: c, type: 'eu' })}
                   onMouseLeave={() => setTooltip(null)}
                 >
-                  <circle r={7} fill="#cbd5e1" fillOpacity={0.4} stroke="#94a3b8" strokeWidth={1} />
-                  <text y={-10} textAnchor="middle" fill="#94a3b8" fontSize={10} fontWeight={500}>
+                  <circle r={7} fill="#C5CCC9" fillOpacity={0.6} stroke="#8BAF9E" strokeWidth={1} />
+                  <text y={-10} textAnchor="middle" fill="#6B6860" fontSize={10} fontWeight={500}>
                     {c.name}
                   </text>
                 </g>
@@ -128,8 +128,8 @@ export default function ScatterPlot({ regions, euCountries, onSelectRegion, sele
 
             {/* EU Average marker */}
             <g transform={`translate(${toX(42500)},${toY(72)})`}>
-              <circle r={9} fill="none" stroke="#64748b" strokeWidth={2} strokeDasharray="4 2" />
-              <text y={-12} textAnchor="middle" fill="#64748b" fontSize={10} fontWeight={600}>EU Avg</text>
+              <circle r={9} fill="none" stroke="#A8A69F" strokeWidth={2} strokeDasharray="4 2" />
+              <text y={-12} textAnchor="middle" fill="#6B6860" fontSize={10} fontWeight={600}>EU Avg</text>
             </g>
 
             {/* Irish Regions (bold, foreground) */}
@@ -158,7 +158,7 @@ export default function ScatterPlot({ regions, euCountries, onSelectRegion, sele
                     r={isSelected ? 17 : 14}
                     fill={r.color}
                     fillOpacity={isSelected ? 1 : 0.85}
-                    stroke="#0f172a"
+                    stroke="white"
                     strokeWidth={isSelected ? 2.5 : 1.5}
                   />
                   <text
@@ -183,27 +183,26 @@ export default function ScatterPlot({ regions, euCountries, onSelectRegion, sele
             <rect
               x={0} y={0}
               width={tooltip.type === 'irish' ? 200 : 180}
-              height={tooltip.type === 'irish' ? 90 : 70}
+              height={tooltip.type === 'irish' ? 80 : 70}
               rx={8}
-              fill="#1e293b"
-              stroke="#334155"
+              fill="white"
+              stroke="#E2DFD8"
               strokeWidth={1}
-              filter="drop-shadow(0 4px 12px rgba(0,0,0,0.4))"
+              filter="drop-shadow(0 2px 8px rgba(0,0,0,0.10))"
             />
             {tooltip.type === 'irish' ? (
               <>
-                <text x={10} y={22} fill="white" fontSize={12} fontWeight={700}>{tooltip.data.shortName}</text>
-                <text x={10} y={40} fill="#94a3b8" fontSize={11}>GVA: €{tooltip.data.gva[2024].toLocaleString()}</text>
-                <text x={10} y={56} fill="#94a3b8" fontSize={11}>Infrastructure: {tooltip.data.infraScore}/100</text>
-                <text x={10} y={72} fill="#94a3b8" fontSize={11}>Unemployment: {tooltip.data.unemployment[2024]}%</text>
-                <text x={10} y={86} fill="#64748b" fontSize={10} fontStyle="italic">{tooltip.data.infraLabel}</text>
+                <text x={10} y={22} fill="#1A1916" fontSize={12} fontWeight={700}>{tooltip.data.shortName}</text>
+                <text x={10} y={40} fill="#6B6860" fontSize={11}>GVA: €{tooltip.data.gva[2024].toLocaleString()}</text>
+                <text x={10} y={56} fill="#6B6860" fontSize={11}>Infrastructure: {tooltip.data.infraScore}/100</text>
+                <text x={10} y={72} fill="#6B6860" fontSize={11}>Unemployment: {tooltip.data.unemployment[2024]}%</text>
               </>
             ) : (
               <>
-                <text x={10} y={22} fill="white" fontSize={12} fontWeight={700}>{tooltip.data.name}</text>
-                <text x={10} y={40} fill="#94a3b8" fontSize={11}>GDP: €{tooltip.data.gvaPerCapita.toLocaleString()}</text>
-                <text x={10} y={56} fill="#94a3b8" fontSize={11}>Infrastructure: {tooltip.data.infraScore}/100</text>
-                <text x={10} y={70} fill="#64748b" fontSize={10}>Unemployment: {tooltip.data.unemployment}%</text>
+                <text x={10} y={22} fill="#1A1916" fontSize={12} fontWeight={700}>{tooltip.data.name}</text>
+                <text x={10} y={40} fill="#6B6860" fontSize={11}>GDP: €{tooltip.data.gvaPerCapita.toLocaleString()}</text>
+                <text x={10} y={56} fill="#6B6860" fontSize={11}>Infrastructure: {tooltip.data.infraScore}/100</text>
+                <text x={10} y={70} fill="#A8A69F" fontSize={10}>Unemployment: {tooltip.data.unemployment}%</text>
               </>
             )}
           </g>
@@ -211,17 +210,17 @@ export default function ScatterPlot({ regions, euCountries, onSelectRegion, sele
       </svg>
 
       {/* Legend */}
-      <div className="flex flex-wrap items-center gap-6 mt-4 text-xs text-slate-400">
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded-full bg-red-500" />
-          <span>Irish Regions (click to select)</span>
+      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 24, marginTop: 16, fontSize: 12, color: '#6B6860', fontFamily: "'DM Sans', system-ui, sans-serif" }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ width: 14, height: 14, borderRadius: '50%', background: '#0D6B4F' }} />
+          <span>Irish Regions</span>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-slate-300 opacity-50" />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#C5CCC9' }} />
           <span>EU Countries (hover for details)</span>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded-full border-2 border-dashed border-slate-500" />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ width: 14, height: 14, borderRadius: '50%', border: '2px dashed #A8A69F', boxSizing: 'border-box' }} />
           <span>EU Average</span>
         </div>
       </div>
