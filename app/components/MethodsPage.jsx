@@ -1,5 +1,86 @@
 'use client';
 
+import { irishRegions, countyData, costOfLivingData, renewableData, migrationData, investmentGapData, populationProjections } from '../data';
+
+function generateCSV(headers, rows) {
+  const escape = v => {
+    const s = String(v ?? '');
+    return s.includes(',') || s.includes('"') || s.includes('\n') ? `"${s.replace(/"/g, '""')}"` : s;
+  };
+  const lines = [headers.map(escape).join(',')];
+  rows.forEach(r => lines.push(r.map(escape).join(',')));
+  return lines.join('\n');
+}
+
+function downloadCSV(filename, csv) {
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+const datasets = [
+  {
+    name: 'Regional GVA (NUTS3)',
+    filename: 'ireland_regional_gva_2024.csv',
+    generate: () => generateCSV(
+      ['Region', 'GVA per Person 2024 (€)', 'Population', 'GDP Share %', 'Unemployment 2024 %'],
+      irishRegions.map(r => [r.name, r.gva[2024], r.population, r.gdpShare, r.unemployment[2024]])
+    ),
+  },
+  {
+    name: 'County GVA',
+    filename: 'ireland_county_gva_2024.csv',
+    generate: () => generateCSV(
+      ['County', 'GVA per Person (€)', 'NUTS3 Region'],
+      countyData.map(c => [c.name, c.gva, c.region])
+    ),
+  },
+  {
+    name: 'Cost of Living',
+    filename: 'ireland_cost_of_living_2024.csv',
+    generate: () => generateCSV(
+      ['Region', 'Disposable Income (€)', 'Monthly Rent (€)', 'Rent/Income %', 'Real Purchasing Power (€)'],
+      costOfLivingData.map(d => [d.name, d.disposable, d.rent, d.rentToIncome, d.realPurchasing])
+    ),
+  },
+  {
+    name: 'Wind Energy',
+    filename: 'ireland_wind_energy_2024.csv',
+    generate: () => generateCSV(
+      ['County', 'Capacity (MW)', 'Annual GWh', 'Grid Constrained', 'Curtailment Risk', 'National Share %'],
+      renewableData.map(r => [r.county, r.capacity, r.annualGwh, r.gridConstrained ? 'Yes' : 'No', r.curtailmentRisk, r.share])
+    ),
+  },
+  {
+    name: 'Migration',
+    filename: 'ireland_migration_2024.csv',
+    generate: () => generateCSV(
+      ['Region', 'Net Migration', 'Brain Drain Risk', 'Young Worker Retention %'],
+      migrationData.regions.map(r => [r.name, r.netFlow, r.brainDrainRisk, r.youngWorkerRetention])
+    ),
+  },
+  {
+    name: 'Investment Gap',
+    filename: 'ireland_investment_gap.csv',
+    generate: () => generateCSV(
+      ['Region', 'NDP Budget (€M)', 'Pop Share %', 'Budget Share %', 'Per Capita (€)', 'Rating'],
+      investmentGapData.map(r => [r.name, r.budget, r.popShare, r.budgetShare, r.perCapita, r.rating])
+    ),
+  },
+  {
+    name: 'Population Projections',
+    filename: 'ireland_population_projections.csv',
+    generate: () => generateCSV(
+      ['Year', 'Dublin (k)', 'Mid-East (k)', 'South-West (k)', 'West (k)', 'South-East (k)', 'Border (k)', 'Midlands (k)', 'National (k)'],
+      populationProjections.map(p => [p.year, p.dublin, p.mideast, p.southwest, p.west, p.southeast, p.northwest, p.midlands, p.national])
+    ),
+  },
+];
+
 export default function MethodsPage() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
@@ -85,6 +166,42 @@ export default function MethodsPage() {
               ))}
             </tbody>
           </table>
+        </div>
+      </div>
+
+      {/* CSV Download */}
+      <div className="card" style={{ padding: '28px 28px 24px' }}>
+        <h3 style={{ fontSize: 18, marginBottom: 8 }}>Download Data</h3>
+        <p style={{ fontSize: 14, color: '#6B6860', lineHeight: 1.6, marginBottom: 20 }}>
+          Download the underlying datasets as CSV files for your own analysis. All data is sourced from CSO, Eurostat, Wind Energy Ireland, and other public sources as noted above.
+        </p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 10 }}>
+          {datasets.map((d, i) => (
+            <button
+              key={i}
+              onClick={() => downloadCSV(d.filename, d.generate())}
+              style={{
+                padding: '12px 16px',
+                fontSize: 13,
+                fontFamily: "'DM Sans', system-ui, sans-serif",
+                fontWeight: 500,
+                color: '#0D6B4F',
+                background: 'white',
+                border: '1px solid #E2DFD8',
+                borderRadius: 8,
+                cursor: 'pointer',
+                textAlign: 'left',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+              }}
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
+                <path d="M8 1v10M4 8l4 4 4-4M2 13h12" stroke="#0D6B4F" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              {d.name}
+            </button>
+          ))}
         </div>
       </div>
 
