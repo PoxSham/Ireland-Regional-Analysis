@@ -2,8 +2,7 @@
 
 import { useState, useMemo, lazy, Suspense } from 'react';
 import { MapPin, Info, Search, Filter, X, TrendingUp, Wind, Users, Globe, Home, Building2, BarChart3, ChevronDown } from 'lucide-react';
-import { irishRegions, europeanCountries, euAverages, irelandNational, countyData } from './data';
-import ScatterPlot from './components/ScatterPlot';
+import { irishRegions, europeanCountries, euAverages, irelandNational } from './data';
 import TrendChart from './components/TrendChart';
 import MetricCard from './components/MetricCard';
 import SearchFilter from './components/SearchFilter';
@@ -17,6 +16,10 @@ const SectoralComposition = lazy(() => import('./components/SectoralComposition'
 const InfrastructureBreakdown = lazy(() => import('./components/InfrastructureBreakdown'));
 const EuropeanComparison = lazy(() => import('./components/EuropeanComparison'));
 const RegionalChart = lazy(() => import('./components/RegionalChart'));
+const GovSpending = lazy(() => import('./components/GovSpending'));
+const TaxBreakdown = lazy(() => import('./components/TaxBreakdown'));
+const DebtDashboard = lazy(() => import('./components/DebtDashboard'));
+const MacroSnapshot = lazy(() => import('./components/MacroSnapshot'));
 
 const TABS = [
   { id: 'overview',    label: 'Overview',       icon: TrendingUp },
@@ -27,6 +30,9 @@ const TABS = [
   { id: 'cost',        label: 'Cost of Living', icon: Home },
   { id: 'sectors',     label: 'Sectors',        icon: BarChart3 },
   { id: 'infra',       label: 'Infrastructure', icon: Building2 },
+  { id: 'spending',    label: 'Gov Spending',   icon: Building2 },
+  { id: 'tax',         label: 'Tax Revenue',    icon: TrendingUp },
+  { id: 'debt',        label: 'National Debt',  icon: BarChart3 },
 ];
 
 function TabLoader() {
@@ -39,12 +45,9 @@ export default function Dashboard() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterInfra, setFilterInfra] = useState('all');
   const [activeTab, setActiveTab] = useState('overview');
-  const [viewMode, setViewMode] = useState('region'); // 'region' | 'county'
   const [showInsights, setShowInsights] = useState(false);
 
   const selected = irishRegions.find(r => r.id === selectedRegion);
-  const scatterData = viewMode === 'county' ? countyData.map(c => ({ ...c, gva: { 2024: c.gva }, infraScore: c.infraScore, shortName: c.name, id: c.name.toLowerCase(), unemployment: { 2024: 6 } })) : irishRegions;
-
   const filteredRegions = useMemo(() => irishRegions.filter(region => {
     const matchesSearch = region.name.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesInfra =
@@ -79,13 +82,7 @@ export default function Dashboard() {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <button
-                onClick={() => setViewMode(m => m === 'region' ? 'county' : 'region')}
-                className="px-3 py-1.5 text-xs rounded-lg border transition-all font-semibold"
-                style={{ borderColor: '#169B62', color: viewMode === 'county' ? '#0a1f0f' : '#169B62', backgroundColor: viewMode === 'county' ? '#169B62' : 'transparent' }}
-              >
-                {viewMode === 'region' ? 'View by County' : 'View by Region'}
-              </button>
+              <span className="text-xs text-slate-500 bg-slate-800/60 px-3 py-1.5 rounded-lg font-semibold border border-irish-border">11 Tabs</span>
             </div>
           </div>
         </div>
@@ -116,26 +113,6 @@ export default function Dashboard() {
 
       <main className="max-w-7xl mx-auto px-6 py-8 space-y-8">
 
-        {/* ── HERO: Scatter Plot (always visible) ── */}
-        <div className="rounded-2xl border overflow-hidden" style={{ borderColor: '#1a3a28', background: 'rgba(13,43,24,0.6)', backdropFilter: 'blur(12px)' }}>
-          <div className="px-6 pt-6 pb-2 flex items-start justify-between">
-            <div>
-              <h2 className="text-xl font-bold text-white">Wealth vs Infrastructure: Ireland &amp; Europe</h2>
-              <p className="text-xs text-slate-400 mt-1">Click an Irish region to explore. Ireland sits in the <span className="text-orange-400 font-semibold">"Rich but Under-Built"</span> quadrant relative to EU peers.</p>
-            </div>
-            <span className="text-xs text-slate-500 bg-slate-800/60 px-3 py-1 rounded-full">CSO 2024 · IMF · WEF GCI</span>
-          </div>
-          <div className="px-6 pb-6">
-            <ScatterPlot
-              regions={viewMode === 'county' ? countyData.map(c => ({ ...c, gva: { 2024: c.gva }, unemployment: { 2024: 6 }, shortName: c.name, id: c.name.toLowerCase(), infraLabel: '' })) : irishRegions}
-              euCountries={europeanCountries}
-              onSelectRegion={setSelectedRegion}
-              selectedId={selectedRegion}
-              viewMode={viewMode}
-            />
-          </div>
-        </div>
-
         {/* ── TABS ── */}
         {activeTab === 'overview' && (
           <>
@@ -148,6 +125,11 @@ export default function Dashboard() {
               <MetricCard label="Unemployment" value="4.5%" change="-0.2% YoY" trend="down" color="green" />
               <MetricCard label="Regional Disparity" value="5.6×" change="Dublin vs NW" trend="stable" color="orange" />
             </div>
+
+            {/* GDP vs GNI* snapshot */}
+            <Suspense fallback={<TabLoader />}>
+              <MacroSnapshot />
+            </Suspense>
 
             {/* Bar chart */}
             <div className="rounded-2xl border p-6" style={{ borderColor: '#1a3a28', background: 'rgba(13,43,24,0.5)' }}>
@@ -269,7 +251,7 @@ export default function Dashboard() {
 
         {activeTab === 'europe' && (
           <Suspense fallback={<TabLoader />}>
-            <EuropeanComparison countries={europeanCountries} averages={euAverages} />
+            <EuropeanComparison countries={europeanCountries} averages={euAverages} regions={irishRegions} />
           </Suspense>
         )}
 
@@ -309,6 +291,24 @@ export default function Dashboard() {
           </Suspense>
         )}
 
+        {activeTab === 'spending' && (
+          <Suspense fallback={<TabLoader />}>
+            <GovSpending />
+          </Suspense>
+        )}
+
+        {activeTab === 'tax' && (
+          <Suspense fallback={<TabLoader />}>
+            <TaxBreakdown />
+          </Suspense>
+        )}
+
+        {activeTab === 'debt' && (
+          <Suspense fallback={<TabLoader />}>
+            <DebtDashboard />
+          </Suspense>
+        )}
+
         {/* Collapsible Key Insights */}
         <div className="rounded-2xl border overflow-hidden" style={{ borderColor: '#1a3a28', background: 'rgba(13,43,24,0.5)' }}>
           <button className="w-full px-6 py-4 flex items-center justify-between text-left" onClick={() => setShowInsights(v => !v)}>
@@ -321,7 +321,7 @@ export default function Dashboard() {
                 <h4 className="font-semibold text-irish-green mb-3 mt-4">Economic Insights</h4>
                 <ul className="space-y-2 text-sm text-slate-300">
                   <li>• Dublin (41% GDP, 23% population) creates severe agglomeration effects</li>
-                  <li>• National GVA/capita €89,800 is 111% above EU average — inflated by MNCs</li>
+                  <li>• GVA/capita €99,513 overstates domestic wealth — GNI* per capita is €59,463 once MNC distortions removed</li>
                   <li>• North-West GVA 5.6× lower than Dublin; growing divergence since 2015</li>
                   <li>• 71% of FDI locked in Eastern & Midland region; West gets 4%</li>
                   <li>• After rent, Dublin's purchasing power advantage nearly disappears</li>

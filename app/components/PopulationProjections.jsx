@@ -1,7 +1,7 @@
 'use client';
 
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, Cell } from 'recharts';
-import { populationProjections, migrationData } from '../data';
+import { populationProjections, migrationData, irishRegions } from '../data';
 
 const regionColors = {
   dublin: '#ef4444', mideast: '#eab308', southwest: '#f97316',
@@ -69,6 +69,62 @@ export default function PopulationProjections() {
               <Area key={id} type="monotone" dataKey={id} name={label} stroke={regionColors[id]} fill={`url(#grad-${id})`} strokeWidth={2} dot={false} />
             ))}
           </AreaChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* Population by Region with Migration Balance */}
+      <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-6">
+        <h3 className="font-bold mb-1">Population by Region with Migration Balance 2024</h3>
+        <p className="text-xs text-slate-400 mb-6">Bar = population (thousands). Label = net migration balance. Regions losing people highlighted.</p>
+        <ResponsiveContainer width="100%" height={320}>
+          <BarChart
+            data={irishRegions.map(r => ({
+              name: r.shortName,
+              population: Math.round(r.population / 1000),
+              migration: r.migrationBalance,
+              color: r.color,
+            })).sort((a, b) => b.population - a.population)}
+            margin={{ top: 20, right: 20, left: 0, bottom: 40 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+            <XAxis dataKey="name" angle={-30} textAnchor="end" height={70} tick={{ fontSize: 11, fill: '#94a3b8' }} />
+            <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} label={{ value: 'Population (k)', angle: -90, position: 'insideLeft', fill: '#94a3b8' }} />
+            <Tooltip
+              content={({ active, payload }) => {
+                if (!active || !payload?.length) return null;
+                const d = payload[0].payload;
+                return (
+                  <div className="bg-slate-900 border border-slate-700 p-3 rounded-lg text-xs space-y-1">
+                    <p className="font-bold text-white">{d.name}</p>
+                    <p className="text-slate-300">Population: <span className="text-emerald-400">{d.population}k</span></p>
+                    <p className={d.migration >= 0 ? 'text-emerald-400' : 'text-red-400'}>
+                      Net Migration: {d.migration >= 0 ? '+' : ''}{d.migration.toLocaleString()}
+                    </p>
+                  </div>
+                );
+              }}
+            />
+            <Bar dataKey="population" radius={[6, 6, 0, 0]}
+              label={{
+                position: 'top',
+                formatter: (v, entry) => {
+                  const d = irishRegions.find(r => Math.round(r.population / 1000) === v);
+                  if (!d) return '';
+                  const m = d.migrationBalance;
+                  return m >= 0 ? `+${(m / 1000).toFixed(1)}k` : `${(m / 1000).toFixed(1)}k`;
+                },
+                fontSize: 10,
+                fill: '#94a3b8',
+              }}
+            >
+              {irishRegions
+                .map(r => ({ color: r.color, pop: Math.round(r.population / 1000) }))
+                .sort((a, b) => b.pop - a.pop)
+                .map((d, i) => (
+                  <Cell key={i} fill={d.color} />
+                ))}
+            </Bar>
+          </BarChart>
         </ResponsiveContainer>
       </div>
 

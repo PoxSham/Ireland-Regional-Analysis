@@ -382,3 +382,98 @@ export const countyData = [
   { name: 'Tipperary',    gva: 55000,  infraScore: 45, region: 'southeast', color: '#06d6a0' },
   { name: 'Clare',        gva: 50104,  infraScore: 44, region: 'southwest', color: '#f97316' },
 ];
+
+// ── GNI* and MNC Distortion ─────────────────────────────────
+export const macroIndicators = {
+  gdp2024: 562800,        // €562.8bn (CSO ANA 2024)
+  gni2024: 321100,        // GNI* €321.1bn (CSO ANA 2024, +4.8%)
+  gniAsShareOfGdp: 57.1,  // GNI* as % of GDP
+  mddGrowth2024: 1.8,     // Modified Domestic Demand growth %
+  personalSpendingGrowth: 2.9,
+  gdpPerCapita2024: 99513, // same as GVA national (CSO Table 4.1)
+  gniStarPerCapita: 59463, // €321.1bn / 5.4M population
+  // Historical GNI* (€bn)
+  gniHistory: {
+    2015: 174, 2016: 188, 2017: 198, 2018: 212,
+    2019: 226, 2020: 218, 2021: 248, 2022: 272,
+    2023: 291, 2024: 321
+  },
+  // GDP vs GNI* gap widening
+  gdpHistory: {
+    2015: 263, 2016: 294, 2017: 333, 2018: 355,
+    2019: 370, 2020: 383, 2021: 449, 2022: 502,
+    2023: 511, 2024: 563
+  },
+};
+
+// ── Government Spending (2024, €bn) ─────────────────────────
+export const govSpending = {
+  total2024: 116.1,
+  total2023: 107.5,
+  total2022: 95.0,
+  total2021: 87.6,
+  total2020: 87.9,
+  total2019: 72.5,
+  breakdown2024: [
+    { category: 'Social Protection', amount: 27.0, color: '#ef4444' },
+    { category: 'Health', amount: 24.6, color: '#3b82f6' },
+    { category: 'Debt & EU', amount: 12.7, color: '#f59e0b' },
+    { category: 'Education', amount: 11.9, color: '#8b5cf6' },
+    { category: 'Housing', amount: 8.3, color: '#06d6a0' },
+    { category: 'Justice', amount: 3.8, color: '#f97316' },
+    { category: 'Transport', amount: 3.6, color: '#14b8a6' },
+    { category: 'Other', amount: 24.4, color: '#64748b' },
+  ],
+  // Per capita (€116.1bn / 5.4M)
+  perCapita2024: 21500,
+  // Spending as % of GNI* (more honest than % of GDP)
+  asShareOfGniStar: 36.2,
+  asShareOfGdp: 20.6,
+};
+
+// ── Tax Revenue (2024, CSO Tax Statistics) ───────────────────
+export const taxRevenue = {
+  total2024: 126000,  // €126bn
+  total2023: 115500,
+  breakdown2024: [
+    { tax: 'Income Tax (incl. USC)', amount: 30, pct: 23.8, color: '#3b82f6' },
+    { tax: 'Corporation Tax', amount: 28.1, pct: 22.3, color: '#ef4444' },
+    { tax: 'VAT', amount: 21.9, pct: 17.4, color: '#8b5cf6' },
+    { tax: 'PRSI', amount: 17.0, pct: 13.5, color: '#06d6a0' },
+    { tax: 'Excise Duties', amount: 6.0, pct: 4.8, color: '#f59e0b' },
+    { tax: 'Other Social', amount: 5.0, pct: 4.0, color: '#14b8a6' },
+    { tax: 'Property Tax', amount: 2.0, pct: 1.6, color: '#f97316' },
+    { tax: 'Other', amount: 16.0, pct: 12.7, color: '#64748b' },
+  ],
+  // Corporation tax concentration risk
+  ctConcentration: {
+    top3Share: 46,       // 3 companies = 46% of CT (IFAC 2026)
+    top10Share: 57,      // top 10 = 57% of CT
+    foreignMncShare: 88, // 88% from foreign MNCs (Revenue 2025)
+    ctAsShareOfTotal: 22,// CT as % of all tax (CSO 2024)
+  },
+  // CT history (€bn, excl. Apple windfall)
+  ctHistory: {
+    2015: 6.9, 2016: 7.4, 2017: 8.2, 2018: 10.4,
+    2019: 10.9, 2020: 11.8, 2021: 15.3, 2022: 22.6,
+    2023: 23.8, 2024: 28.1,
+  },
+};
+
+// ── National Debt ─────────────────────────────────────────────
+export const nationalDebt = {
+  gross2024: 215400,   // €215.4bn (CSO GFS Oct 2025)
+  net2024: 155000,     // €155bn net
+  asShareOfGdp: 38.3,
+  asShareOfGniStar: 67.1, // 215.4 / 321.1 = 67%
+  perCapita: 39889,        // 215.4bn / 5.4M
+  surplus2024: 22600,      // €22.6bn surplus in 2024
+  history: {
+    gross: { 2019: 204, 2020: 222, 2021: 236, 2022: 216, 2023: 219, 2024: 215 },
+    gdpPct: { 2019: 57.2, 2020: 56.9, 2021: 52.4, 2022: 42.9, 2023: 41.8, 2024: 38.3 },
+    gniPct: { 2019: 90, 2020: 102, 2021: 95, 2022: 79, 2023: 75, 2024: 67 },
+  },
+  // Debt servicing cost
+  debtServiceCost: 3.2,  // €3.2bn interest in 2024
+  avgInterestRate: 1.5,   // % on debt portfolio
+};

@@ -11,6 +11,7 @@ import {
   ResponsiveContainer,
   Cell,
 } from 'recharts';
+import ScatterPlot from './ScatterPlot';
 
 const categoryColors = {
   highest: '#10b981',
@@ -19,7 +20,7 @@ const categoryColors = {
   lowest: '#ef4444',
 };
 
-export default function EuropeanComparison({ countries, averages }) {
+export default function EuropeanComparison({ countries, averages, regions }) {
   const irelandandUniqueCountries = countries.filter(c => c.category !== 'ireland');
 
   const irelandEntry = countries.find(c => c.category === 'ireland');
@@ -39,6 +40,25 @@ export default function EuropeanComparison({ countries, averages }) {
 
   return (
     <div className="space-y-8">
+      {/* Scatter Plot */}
+      {regions && (
+        <div className="rounded-2xl border overflow-hidden" style={{ borderColor: '#1a3a28', background: 'rgba(13,43,24,0.6)', backdropFilter: 'blur(12px)' }}>
+          <div className="px-6 pt-6 pb-2">
+            <h2 className="text-xl font-bold text-white">Wealth vs Infrastructure: Ireland &amp; Europe</h2>
+            <p className="text-xs text-slate-400 mt-1">Click an Irish region to explore. Ireland sits in the <span className="text-orange-400 font-semibold">&quot;Rich but Under-Built&quot;</span> quadrant relative to EU peers.</p>
+          </div>
+          <div className="px-6 pb-6">
+            <ScatterPlot
+              regions={regions}
+              euCountries={countries}
+              onSelectRegion={() => {}}
+              selectedId=""
+              viewMode="region"
+            />
+          </div>
+        </div>
+      )}
+
       {/* GVA Comparison Chart */}
       <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-6 backdrop-blur-sm">
         <h3 className="text-xl font-bold mb-4">GVA per Capita (2024)</h3>

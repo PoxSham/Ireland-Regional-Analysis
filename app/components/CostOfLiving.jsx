@@ -56,6 +56,47 @@ export default function CostOfLiving() {
         <div className="mt-2 text-xs text-slate-400">77% line = danger zone (Dublin). Below 60% = sustainable.</div>
       </div>
 
+      {/* Real Purchasing Power after rent */}
+      <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-6">
+        <h3 className="font-bold mb-1">Real Purchasing Power After Rent (€/month)</h3>
+        <p className="text-xs text-slate-400 mb-6">Disposable income minus annual rent, divided by 12. Shows what people actually have to spend each month.</p>
+        <ResponsiveContainer width="100%" height={280}>
+          <BarChart
+            data={[...costOfLivingData].sort((a, b) => b.realPurchasing - a.realPurchasing).map(d => ({
+              ...d,
+              monthlyAfterRent: Math.round(d.realPurchasing / 12),
+            }))}
+            margin={{ top: 5, right: 20, left: 0, bottom: 40 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+            <XAxis dataKey="name" angle={-30} textAnchor="end" height={70} tick={{ fontSize: 11, fill: '#94a3b8' }} />
+            <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} tickFormatter={v => `€${v}`} />
+            <Tooltip
+              content={({ active, payload }) => {
+                if (!active || !payload?.length) return null;
+                const d = payload[0].payload;
+                return (
+                  <div className="bg-slate-900 border border-slate-700 p-3 rounded-lg text-xs space-y-1">
+                    <p className="font-bold text-white">{d.name}</p>
+                    <p className="text-slate-300">Disposable: <span className="text-emerald-400">€{d.disposable.toLocaleString()}/yr</span></p>
+                    <p className="text-slate-300">Rent: <span className="text-red-400">€{d.rent.toLocaleString()}/mo</span></p>
+                    <p className="text-slate-300">After-rent monthly: <span className="text-blue-400">€{d.monthlyAfterRent.toLocaleString()}</span></p>
+                  </div>
+                );
+              }}
+            />
+            <Bar dataKey="monthlyAfterRent" name="Monthly after rent" radius={[6, 6, 0, 0]}
+              label={{ position: 'top', formatter: v => `€${v.toLocaleString()}`, fontSize: 10, fill: '#94a3b8' }}
+            >
+              {[...costOfLivingData].sort((a, b) => b.realPurchasing - a.realPurchasing).map((d, i) => (
+                <Cell key={i} fill={colors[d.id] || '#64748b'} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+        <p className="text-xs text-amber-400 mt-2 italic">Despite having the highest nominal incomes, Dublin residents have among the lowest real purchasing power after housing costs.</p>
+      </div>
+
       {/* Purchasing power comparison */}
       <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-6">
         <h3 className="font-bold mb-4">Dublin vs Donegal — Real Purchasing Power After Rent</h3>

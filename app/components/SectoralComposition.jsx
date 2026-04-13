@@ -1,6 +1,7 @@
 'use client';
 
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { useState } from 'react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
 import { irishRegions } from '../data';
 
 const sectorColors = {
@@ -16,6 +17,7 @@ const sectorLabels = {
 };
 
 export default function SectoralComposition() {
+  const [selectedRegionId, setSelectedRegionId] = useState('dublin');
   const chartData = irishRegions.map(r => ({
     name: r.shortName.split(' ')[0],
     ...r.sectors,
@@ -69,6 +71,64 @@ export default function SectoralComposition() {
             ))}
           </BarChart>
         </ResponsiveContainer>
+      </div>
+
+      {/* Region Detail Horizontal Bar */}
+      <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h3 className="font-bold mb-1">Sector Breakdown — {irishRegions.find(r => r.id === selectedRegionId)?.shortName || 'Dublin'}</h3>
+            <p className="text-xs text-slate-400">Select a region to see its sectoral composition</p>
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {irishRegions.map(r => (
+              <button
+                key={r.id}
+                onClick={() => setSelectedRegionId(r.id)}
+                className="px-2.5 py-1 rounded-lg text-xs font-medium transition-all"
+                style={{
+                  backgroundColor: selectedRegionId === r.id ? r.color : 'rgba(30,50,38,0.8)',
+                  color: selectedRegionId === r.id ? '#fff' : '#94a3b8',
+                  border: `1px solid ${selectedRegionId === r.id ? r.color : '#1a3a28'}`,
+                }}
+              >
+                {r.shortName.split(' ')[0]}
+              </button>
+            ))}
+          </div>
+        </div>
+        {(() => {
+          const region = irishRegions.find(r => r.id === selectedRegionId);
+          if (!region) return null;
+          const sectorData = Object.entries(region.sectors)
+            .map(([key, value]) => ({ name: sectorLabels[key] || key, value, color: sectorColors[key] || '#64748b' }))
+            .sort((a, b) => b.value - a.value);
+          return (
+            <ResponsiveContainer width="100%" height={280}>
+              <BarChart data={sectorData} layout="vertical" margin={{ top: 5, right: 40, left: 10, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#334155" horizontal={false} />
+                <XAxis type="number" tick={{ fontSize: 11, fill: '#94a3b8' }} tickFormatter={v => `${v}%`} domain={[0, 100]} />
+                <YAxis type="category" dataKey="name" tick={{ fontSize: 11, fill: '#94a3b8' }} width={140} />
+                <Tooltip
+                  content={({ active, payload }) => {
+                    if (!active || !payload?.length) return null;
+                    return (
+                      <div className="bg-slate-900 border border-slate-700 p-3 rounded-lg text-xs">
+                        <p className="font-bold text-white">{payload[0].payload.name}</p>
+                        <p className="text-slate-300">{payload[0].value}% of GVA</p>
+                      </div>
+                    );
+                  }}
+                />
+                <Bar dataKey="value" radius={[0, 6, 6, 0]} label={{ position: 'right', formatter: v => `${v}%`, fontSize: 11, fill: '#94a3b8' }}>
+                  {sectorData.map((d, i) => (
+                    <Cell key={i} fill={d.color} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          );
+        })()}
       </div>
 
       <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-5">

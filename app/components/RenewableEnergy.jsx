@@ -1,9 +1,13 @@
 'use client';
 
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
-import { renewableData, nationalWindStats } from '../data';
+import { renewableData, nationalWindStats, irishRegions } from '../data';
 
 const curtailmentColors = { 'Low': '#10b981', 'Medium': '#f59e0b', 'High': '#f97316', 'Critical': '#ef4444', 'N/A': '#64748b' };
+
+const regionWindData = irishRegions
+  .map(r => ({ name: r.shortName, capacity: r.windCapacity, color: r.color }))
+  .sort((a, b) => b.capacity - a.capacity);
 
 export default function RenewableEnergy() {
   const CustomTooltip = ({ active, payload }) => {
@@ -64,6 +68,36 @@ export default function RenewableEnergy() {
           <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-sm bg-emerald-500"/><span>Grid unconstrained</span></div>
           <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-sm bg-red-500"/><span>Grid constrained — cannot add capacity</span></div>
         </div>
+      </div>
+
+      {/* Wind Capacity by Region */}
+      <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-6">
+        <h3 className="font-bold mb-1">Wind Capacity by Region (GW)</h3>
+        <p className="text-xs text-slate-400 mb-6">Aggregated from county data. Dublin and Mid-East have negligible wind capacity.</p>
+        <ResponsiveContainer width="100%" height={280}>
+          <BarChart data={regionWindData} margin={{ top: 5, right: 20, left: 0, bottom: 40 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+            <XAxis dataKey="name" angle={-30} textAnchor="end" height={70} tick={{ fontSize: 11, fill: '#94a3b8' }} />
+            <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} label={{ value: 'MW', angle: -90, position: 'insideLeft', fill: '#94a3b8' }} />
+            <Tooltip
+              content={({ active, payload }) => {
+                if (!active || !payload?.length) return null;
+                const d = payload[0].payload;
+                return (
+                  <div className="bg-slate-900 border border-slate-700 p-3 rounded-lg text-xs">
+                    <p className="font-bold text-white">{d.name}</p>
+                    <p className="text-emerald-400">{d.capacity.toLocaleString()} MW</p>
+                  </div>
+                );
+              }}
+            />
+            <Bar dataKey="capacity" radius={[6, 6, 0, 0]}>
+              {regionWindData.map((d, i) => (
+                <Cell key={i} fill={d.color} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
       </div>
 
       {/* Policy callout */}
