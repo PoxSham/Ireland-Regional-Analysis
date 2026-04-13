@@ -2,23 +2,55 @@
 
 import { useState, useRef, useEffect } from 'react';
 
-const PADDING = { top: 40, right: 30, bottom: 60, left: 70 };
+// ── Verified data: Eurostat Annual Unemployment Rates 2024 ─────────────────
+// Source: Eurostat [une_rt_a], annual averages 2024
+const EU_COUNTRIES = [
+  { name: 'Luxembourg',   gva: 125000, unemp: 5.5,  group: 'west' },
+  { name: 'Netherlands',  gva: 72000,  unemp: 3.7,  group: 'west' },
+  { name: 'Denmark',      gva: 70000,  unemp: 5.0,  group: 'west' },
+  { name: 'Austria',      gva: 68000,  unemp: 5.3,  group: 'west' },
+  { name: 'Germany',      gva: 62000,  unemp: 3.4,  group: 'west' },
+  { name: 'Belgium',      gva: 56000,  unemp: 5.6,  group: 'west' },
+  { name: 'France',       gva: 58000,  unemp: 7.3,  group: 'west' },
+  { name: 'Sweden',       gva: 58000,  unemp: 8.5,  group: 'north' },
+  { name: 'Finland',      gva: 52000,  unemp: 7.5,  group: 'north' },
+  { name: 'Spain',        gva: 32000,  unemp: 11.4, group: 'south' },
+  { name: 'Italy',        gva: 35000,  unemp: 6.7,  group: 'south' },
+  { name: 'Greece',       gva: 22000,  unemp: 11.1, group: 'south' },
+  { name: 'Portugal',     gva: 25000,  unemp: 6.4,  group: 'south' },
+  { name: 'Slovenia',     gva: 36000,  unemp: 3.6,  group: 'east' },
+  { name: 'Czechia',      gva: 32000,  unemp: 2.7,  group: 'east' },
+  { name: 'Poland',       gva: 22000,  unemp: 3.0,  group: 'east' },
+  { name: 'Hungary',      gva: 22000,  unemp: 4.5,  group: 'east' },
+  { name: 'Romania',      gva: 17000,  unemp: 5.6,  group: 'east' },
+  { name: 'Bulgaria',     gva: 15000,  unemp: 4.2,  group: 'east' },
+];
 
-function lerp(value, inMin, inMax, outMin, outMax) {
-  return ((value - inMin) / (inMax - inMin)) * (outMax - outMin) + outMin;
+const GROUP_COLORS = {
+  west:  '#6B9FBF',  // muted blue
+  north: '#7BAAA8',  // muted teal
+  south: '#C49A6C',  // muted amber
+  east:  '#A0A89E',  // muted slate
+};
+
+const IRISH_COLOR = '#0D6B4F';
+const PADDING = { top: 28, right: 130, bottom: 56, left: 68 };
+
+function lerp(v, inMin, inMax, outMin, outMax) {
+  return ((v - inMin) / (inMax - inMin)) * (outMax - outMin) + outMin;
 }
 
-export default function ScatterPlot({ regions, euCountries, onSelectRegion, selectedId, viewMode }) {
-  const [tooltip, setTooltip] = useState(null);
-  const [dims, setDims] = useState({ w: 800, h: 480 });
-  const svgRef = useRef(null);
+export default function ScatterPlot({ regions }) {
+  const [active, setActive] = useState(null);   // { data, type }
+  const [dims, setDims] = useState({ w: 760, h: 460 });
+  const containerRef = useRef(null);
 
   useEffect(() => {
     const ro = new ResizeObserver(entries => {
       const { width } = entries[0].contentRect;
-      setDims({ w: width, h: Math.max(360, width * 0.55) });
+      setDims({ w: width, h: Math.max(320, Math.min(520, width * 0.62)) });
     });
-    if (svgRef.current) ro.observe(svgRef.current.parentElement);
+    if (containerRef.current) ro.observe(containerRef.current);
     return () => ro.disconnect();
   }, []);
 
@@ -26,202 +58,246 @@ export default function ScatterPlot({ regions, euCountries, onSelectRegion, sele
   const plotW = w - PADDING.left - PADDING.right;
   const plotH = h - PADDING.top - PADDING.bottom;
 
-  const xMin = 15000, xMax = 195000;
-  const yMin = 0, yMax = 13;
+  // Axis ranges — GVA up to 185k, unemployment 0–13%
+  const xMin = 10000, xMax = 185000;
+  const yMin = 0,     yMax = 13;
 
   const toX = v => lerp(v, xMin, xMax, 0, plotW);
   const toY = v => lerp(v, yMin, yMax, plotH, 0);
 
-  // Quadrant lines
-  const midX = toX(60000);
-  const midY = toY(5.5);
-
-  const quadrants = [
-    { x: 2, y: 2,         label: 'Low Output, High Unemployment',  color: '#ef4444' },
-    { x: midX + 8, y: 2,  label: 'High Output, High Unemployment', color: '#f97316' },
-    { x: 2, y: midY + 14, label: 'Low Output, Low Unemployment',   color: '#10b981' },
-    { x: midX + 8, y: midY + 14, label: 'High Output, Low Unemployment', color: '#3b82f6' },
-  ];
-
-  const xTicks = [20000, 40000, 60000, 80000, 100000, 130000, 160000, 190000];
+  const xTicks = [20000, 40000, 60000, 80000, 100000, 130000, 160000];
   const yTicks = [2, 4, 6, 8, 10, 12];
 
+  // EU avg reference lines
+  const euAvgX = toX(37610);   // Eurostat 2024 EU avg GDP per capita
+  const euAvgY = toY(5.9);     // Eurostat 2024 EU avg unemployment
+
+  // Irish national reference (GNI* per capita is more honest)
+  const irelandGniX = toX(59463);
+
   return (
-    <div className="w-full select-none">
+    <div ref={containerRef} style={{ width: '100%', fontFamily: "'DM Sans', system-ui, sans-serif" }}>
+
+      {/* ── Chart ── */}
       <svg
-        ref={svgRef}
         width={w}
         height={h}
-        className="overflow-visible"
-        aria-label="Wealth vs Infrastructure scatter plot"
+        style={{ overflow: 'visible', display: 'block' }}
+        aria-label="GVA per capita vs unemployment rate scatter plot"
       >
         <defs>
-          <clipPath id="plot-clip">
-            <rect x={0} y={0} width={plotW} height={plotH} />
+          <clipPath id="sp-clip">
+            <rect x={0} y={0} width={plotW + 2} height={plotH + 2} />
           </clipPath>
         </defs>
 
         <g transform={`translate(${PADDING.left},${PADDING.top})`}>
-          {/* Grid */}
+
+          {/* ── Grid lines ── */}
           {xTicks.map(v => (
-            <line key={v} x1={toX(v)} x2={toX(v)} y1={0} y2={plotH} stroke="#E2DFD8" strokeWidth={1} strokeDasharray="4 4" />
+            <line key={`gx-${v}`} x1={toX(v)} x2={toX(v)} y1={0} y2={plotH}
+              stroke="#EDEAE4" strokeWidth={1} />
           ))}
           {yTicks.map(v => (
-            <line key={v} x1={0} x2={plotW} y1={toY(v)} y2={toY(v)} stroke="#E2DFD8" strokeWidth={1} strokeDasharray="4 4" />
+            <line key={`gy-${v}`} x1={0} x2={plotW} y1={toY(v)} y2={toY(v)}
+              stroke="#EDEAE4" strokeWidth={1} />
           ))}
 
-          {/* Quadrant dividers */}
-          <line x1={midX} x2={midX} y1={0} y2={plotH} stroke="#C5CCC9" strokeWidth={1.5} strokeDasharray="8 4" />
-          <line x1={0} x2={plotW} y1={midY} y2={midY} stroke="#C5CCC9" strokeWidth={1.5} strokeDasharray="8 4" />
+          {/* ── EU average reference lines ── */}
+          <line x1={euAvgX} x2={euAvgX} y1={0} y2={plotH}
+            stroke="#B0ABA4" strokeWidth={1.5} strokeDasharray="6 3" />
+          <line x1={0} x2={plotW} y1={euAvgY} y2={euAvgY}
+            stroke="#B0ABA4" strokeWidth={1.5} strokeDasharray="6 3" />
 
-          {/* Quadrant labels */}
-          {quadrants.map((q, i) => (
-            <text key={i} x={q.x} y={q.y} fill={q.color} fontSize={11} fontWeight={600} opacity={0.7}>
-              {q.label}
-            </text>
-          ))}
+          {/* EU avg labels */}
+          <text x={euAvgX + 4} y={8} fill="#A8A69F" fontSize={10} fontWeight={500}>EU avg GDP</text>
+          <text x={4} y={euAvgY - 4} fill="#A8A69F" fontSize={10} fontWeight={500}>EU avg unemp. 5.9%</text>
 
-          {/* X Axis */}
+          {/* ── Ireland GNI* reference line ── */}
+          <line x1={irelandGniX} x2={irelandGniX} y1={0} y2={plotH}
+            stroke="#0D6B4F" strokeWidth={1} strokeDasharray="4 3" opacity={0.4} />
+          <text x={irelandGniX + 4} y={plotH - 6} fill="#0D6B4F" fontSize={9} opacity={0.6}>
+            Ireland GNI*
+          </text>
+
+          {/* ── X Axis ── */}
           {xTicks.map(v => (
-            <g key={v} transform={`translate(${toX(v)},${plotH})`}>
-              <line y2={5} stroke="#A8A69F" />
-              <text y={18} textAnchor="middle" fill="#6B6860" fontSize={11}>
-                €{v >= 1000 ? (v / 1000) + 'k' : v}
+            <g key={`xt-${v}`} transform={`translate(${toX(v)},${plotH})`}>
+              <line y2={4} stroke="#C5BFB8" />
+              <text y={16} textAnchor="middle" fill="#6B6860" fontSize={10.5}>
+                €{v >= 1000 ? Math.round(v / 1000) + 'k' : v}
               </text>
             </g>
           ))}
-          <text x={plotW / 2} y={plotH + 48} textAnchor="middle" fill="#6B6860" fontSize={12} fontWeight={600}>
-            GVA per Capita (€)
+          <text x={plotW / 2} y={plotH + 44} textAnchor="middle"
+            fill="#4A4740" fontSize={11.5} fontWeight={600}>
+            GVA per Capita (€, approx.)
           </text>
 
-          {/* Y Axis */}
+          {/* ── Y Axis ── */}
           {yTicks.map(v => (
-            <g key={v} transform={`translate(0,${toY(v)})`}>
-              <line x2={-5} stroke="#A8A69F" />
-              <text x={-10} dy="0.35em" textAnchor="end" fill="#6B6860" fontSize={11}>{v}</text>
+            <g key={`yt-${v}`} transform={`translate(0,${toY(v)})`}>
+              <line x2={-4} stroke="#C5BFB8" />
+              <text x={-8} dy="0.35em" textAnchor="end" fill="#6B6860" fontSize={10.5}>{v}%</text>
             </g>
           ))}
-          <text transform={`translate(-52,${plotH / 2}) rotate(-90)`} textAnchor="middle" fill="#6B6860" fontSize={12} fontWeight={600}>
+          <text
+            transform={`translate(-50,${plotH / 2}) rotate(-90)`}
+            textAnchor="middle" fill="#4A4740" fontSize={11.5} fontWeight={600}>
             Unemployment Rate (%)
           </text>
 
-          {/* EU Countries (muted, background) */}
-          <g clipPath="url(#plot-clip)">
-            {euCountries.map((c) => {
-              const cx = toX(c.gvaPerCapita);
-              const cy = toY(c.unemployment);
+          {/* ── Data points ── */}
+          <g clipPath="url(#sp-clip)">
+
+            {/* EU countries — small coloured dots, label beside */}
+            {EU_COUNTRIES.map(c => {
+              const cx = toX(c.gva);
+              const cy = toY(c.unemp);
+              const isActive = active?.data?.name === c.name;
               return (
                 <g
                   key={c.name}
                   transform={`translate(${cx},${cy})`}
                   style={{ cursor: 'pointer' }}
-                  onMouseEnter={e => setTooltip({ x: cx + PADDING.left, y: cy + PADDING.top, data: c, type: 'eu' })}
-                  onMouseLeave={() => setTooltip(null)}
+                  onClick={() => setActive(active?.data?.name === c.name ? null : { data: c, type: 'eu' })}
+                  onMouseEnter={() => setActive({ data: c, type: 'eu' })}
+                  onMouseLeave={() => setActive(null)}
                 >
-                  <circle r={7} fill="#C5CCC9" fillOpacity={0.6} stroke="#8BAF9E" strokeWidth={1} />
-                  <text y={-10} textAnchor="middle" fill="#6B6860" fontSize={10} fontWeight={500}>
+                  <circle
+                    r={isActive ? 7 : 5}
+                    fill={GROUP_COLORS[c.group]}
+                    fillOpacity={isActive ? 1 : 0.75}
+                    stroke={isActive ? 'white' : 'none'}
+                    strokeWidth={1.5}
+                  />
+                  <text
+                    x={7}
+                    dy="0.35em"
+                    fill={isActive ? '#1A1916' : '#7A7570'}
+                    fontSize={isActive ? 10.5 : 9.5}
+                    fontWeight={isActive ? 600 : 400}
+                    style={{ pointerEvents: 'none', userSelect: 'none' }}
+                  >
                     {c.name}
                   </text>
                 </g>
               );
             })}
 
-            {/* EU Average marker */}
-            <g transform={`translate(${toX(42500)},${toY(5.8)})`}>
-              <circle r={9} fill="none" stroke="#A8A69F" strokeWidth={2} strokeDasharray="4 2" />
-              <text y={-12} textAnchor="middle" fill="#6B6860" fontSize={10} fontWeight={600}>EU Avg</text>
-            </g>
-
-            {/* Irish Regions (bold, foreground) */}
-            {regions.map((r) => {
+            {/* Irish regions — larger solid green dots, name beside */}
+            {regions.map(r => {
               const cx = toX(r.gva[2024]);
               const cy = toY(r.unemployment[2024]);
-              const isSelected = r.id === selectedId;
+              const isActive = active?.data?.id === r.id;
               return (
                 <g
                   key={r.id}
                   transform={`translate(${cx},${cy})`}
                   style={{ cursor: 'pointer' }}
-                  onClick={() => onSelectRegion(r.id)}
-                  onMouseEnter={() => setTooltip({ x: cx + PADDING.left, y: cy + PADDING.top, data: r, type: 'irish' })}
-                  onMouseLeave={() => setTooltip(null)}
-                  role="button"
-                  aria-label={`${r.name}: GVA €${r.gva[2024].toLocaleString()}, Unemployment ${r.unemployment[2024]}%`}
-                  tabIndex={0}
+                  onClick={() => setActive(active?.data?.id === r.id ? null : { data: r, type: 'irish' })}
+                  onMouseEnter={() => setActive({ data: r, type: 'irish' })}
+                  onMouseLeave={() => setActive(null)}
                 >
-                  {isSelected && (
-                    <circle r={22} fill={r.color} fillOpacity={0.15} stroke={r.color} strokeWidth={2} strokeDasharray="4 2">
-                      <animate attributeName="r" values="18;24;18" dur="2s" repeatCount="indefinite" />
-                    </circle>
+                  {isActive && (
+                    <circle r={13} fill={IRISH_COLOR} fillOpacity={0.12} stroke={IRISH_COLOR}
+                      strokeWidth={1.5} strokeDasharray="3 2" />
                   )}
                   <circle
-                    r={isSelected ? 17 : 14}
-                    fill={r.color}
-                    fillOpacity={isSelected ? 1 : 0.85}
+                    r={isActive ? 9 : 7}
+                    fill={IRISH_COLOR}
+                    fillOpacity={isActive ? 1 : 0.85}
                     stroke="white"
-                    strokeWidth={isSelected ? 2.5 : 1.5}
+                    strokeWidth={1.5}
                   />
                   <text
-                    textAnchor="middle"
+                    x={11}
                     dy="0.35em"
-                    fill="white"
-                    fontSize={isSelected ? 10 : 9}
+                    fill={IRISH_COLOR}
+                    fontSize={isActive ? 11 : 10}
                     fontWeight={700}
-                    style={{ pointerEvents: 'none' }}
+                    style={{ pointerEvents: 'none', userSelect: 'none' }}
                   >
-                    {r.shortName.split(' ')[0].substring(0, 3).toUpperCase()}
+                    {r.shortName}
                   </text>
                 </g>
               );
             })}
+
           </g>
         </g>
-
-        {/* Tooltip */}
-        {tooltip && (
-          <g transform={`translate(${Math.min(tooltip.x + 12, w - 200)},${Math.max(tooltip.y - 10, 10)})`}>
-            <rect
-              x={0} y={0}
-              width={tooltip.type === 'irish' ? 200 : 180}
-              height={tooltip.type === 'irish' ? 66 : 66}
-              rx={8}
-              fill="white"
-              stroke="#E2DFD8"
-              strokeWidth={1}
-              filter="drop-shadow(0 2px 8px rgba(0,0,0,0.10))"
-            />
-            {tooltip.type === 'irish' ? (
-              <>
-                <text x={10} y={22} fill="#1A1916" fontSize={12} fontWeight={700}>{tooltip.data.shortName}</text>
-                <text x={10} y={40} fill="#6B6860" fontSize={11}>GVA: €{tooltip.data.gva[2024].toLocaleString()}</text>
-                <text x={10} y={56} fill="#6B6860" fontSize={11}>Unemployment: {tooltip.data.unemployment[2024]}%</text>
-              </>
-            ) : (
-              <>
-                <text x={10} y={22} fill="#1A1916" fontSize={12} fontWeight={700}>{tooltip.data.name}</text>
-                <text x={10} y={40} fill="#6B6860" fontSize={11}>GDP: €{tooltip.data.gvaPerCapita.toLocaleString()}</text>
-                <text x={10} y={56} fill="#6B6860" fontSize={11}>Unemployment: {tooltip.data.unemployment}%</text>
-              </>
-            )}
-          </g>
-        )}
       </svg>
 
-      {/* Legend */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 24, marginTop: 16, fontSize: 12, color: '#6B6860', fontFamily: "'DM Sans', system-ui, sans-serif" }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div style={{ width: 14, height: 14, borderRadius: '50%', background: '#0D6B4F' }} />
-          <span>Irish Regions</span>
+      {/* ── Info card — shows on hover/tap ── */}
+      {active && (
+        <div style={{
+          margin: '12px 0 0',
+          padding: '14px 18px',
+          background: '#F9F8F4',
+          border: '1px solid #E2DFD8',
+          borderRadius: 10,
+          fontSize: 13,
+          lineHeight: 1.6,
+          color: '#1A1916',
+        }}>
+          {active.type === 'irish' ? (
+            <>
+              <div style={{ fontWeight: 700, marginBottom: 4, color: IRISH_COLOR }}>
+                {active.data.name}
+              </div>
+              <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap', color: '#4A4740' }}>
+                <span>GVA per capita: <strong>€{active.data.gva[2024].toLocaleString()}</strong></span>
+                <span>Unemployment: <strong>{active.data.unemployment[2024]}%</strong></span>
+                <span>Source: <span style={{ color: '#A8A69F' }}>CSO 2024</span></span>
+              </div>
+            </>
+          ) : (
+            <>
+              <div style={{ fontWeight: 700, marginBottom: 4 }}>{active.data.name}</div>
+              <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap', color: '#4A4740' }}>
+                <span>GVA per capita: <strong>~€{active.data.gva.toLocaleString()}</strong></span>
+                <span>Unemployment: <strong>{active.data.unemp}%</strong></span>
+                <span>Source: <span style={{ color: '#A8A69F' }}>Eurostat 2024</span></span>
+              </div>
+            </>
+          )}
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#C5CCC9' }} />
-          <span>EU Countries (hover for details)</span>
+      )}
+
+      {/* ── Legend ── */}
+      <div style={{
+        display: 'flex', flexWrap: 'wrap', gap: '8px 20px',
+        marginTop: active ? 10 : 14,
+        fontSize: 12, color: '#6B6860',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ width: 11, height: 11, borderRadius: '50%', background: IRISH_COLOR }} />
+          <span style={{ fontWeight: 600, color: '#1A1916' }}>Irish Regions</span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div style={{ width: 14, height: 14, borderRadius: '50%', border: '2px dashed #A8A69F', boxSizing: 'border-box' }} />
-          <span>EU Average</span>
+        {[
+          { label: 'Western/Northern EU', key: 'west' },
+          { label: 'Northern EU', key: 'north' },
+          { label: 'Southern EU', key: 'south' },
+          { label: 'Eastern EU', key: 'east' },
+        ].map(({ label, key }) => (
+          <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ width: 9, height: 9, borderRadius: '50%', background: GROUP_COLORS[key] }} />
+            <span>{label}</span>
+          </div>
+        ))}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ width: 16, height: 1, background: '#B0ABA4', borderTop: '1.5px dashed #B0ABA4' }} />
+          <span>EU average</span>
         </div>
       </div>
+
+      <p style={{ marginTop: 10, fontSize: 11, color: '#A8A69F', lineHeight: 1.5 }}>
+        Tap or hover a point for details. Irish region GVA: CSO County Incomes and GDP 2024.
+        Irish region unemployment: CSO LFS 2024. EU country GVA: Eurostat national accounts 2023–2024 (approximated).
+        EU unemployment: Eurostat [une_rt_a] annual average 2024. EU country GVA figures are rounded estimates —
+        for precise PPS comparisons see <a href="https://ec.europa.eu/eurostat" target="_blank" rel="noreferrer"
+        style={{ color: '#0D6B4F' }}>ec.europa.eu/eurostat</a>.
+      </p>
     </div>
   );
 }

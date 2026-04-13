@@ -835,16 +835,10 @@ export default function Dashboard() {
 
             {/* Scatter plot first */}
             <ChartPanel
-              title="GVA per Capita: Irish Regions vs EU Countries"
-              source="Source: CSO County Incomes and GDP 2024; Eurostat National Accounts 2022–2023 (approximated). EU country figures are rounded estimates — for precise PPS comparisons see ec.europa.eu/eurostat."
+              title="GVA per Capita vs Unemployment: Irish Regions and EU Countries"
+              source=""
             >
-              <ScatterPlot
-                regions={irishRegions}
-                euCountries={europeanCountries}
-                onSelectRegion={() => {}}
-                selectedId=""
-                viewMode="region"
-              />
+              <ScatterPlot regions={irishRegions} />
             </ChartPanel>
 
             <ChartPanel
