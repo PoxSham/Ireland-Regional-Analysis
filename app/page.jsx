@@ -173,18 +173,33 @@ export default function Dashboard() {
     <div style={{ minHeight: '100vh', background: '#F5F4F0' }}>
       {/* ── Sticky Nav ── */}
       <nav style={{ position: 'sticky', top: 0, zIndex: 50, background: 'white', borderBottom: '1px solid #E2DFD8' }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px', display: 'flex', alignItems: 'center', gap: 24 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 0', flexShrink: 0 }}>
+        {/* Row 1: Logo / title */}
+        <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 20px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 0 10px' }}>
             <Logo />
             <span style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: 18, color: '#1A1916' }}>Irish Regional Economics</span>
           </div>
-          <div style={{ display: 'flex', gap: 2, overflowX: 'auto', flex: 1, scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+        </div>
+        {/* Row 2: Tab strip — full width, scrollable, fades at edges on mobile */}
+        <div style={{ borderTop: '1px solid #F0EDE8', position: 'relative' }}>
+          <div
+            style={{
+              maxWidth: 1100,
+              margin: '0 auto',
+              paddingLeft: 20,
+              display: 'flex',
+              overflowX: 'auto',
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none',
+              WebkitOverflowScrolling: 'touch',
+            }}
+          >
             {SECTIONS.map(s => (
               <button
                 key={s.id}
                 onClick={() => setActiveSection(s.id)}
                 style={{
-                  padding: '14px 10px',
+                  padding: '10px 14px',
                   fontSize: 13,
                   fontFamily: "'DM Sans', system-ui, sans-serif",
                   fontWeight: activeSection === s.id ? 600 : 400,
@@ -194,12 +209,19 @@ export default function Dashboard() {
                   borderBottom: activeSection === s.id ? '2px solid #0D6B4F' : '2px solid transparent',
                   cursor: 'pointer',
                   whiteSpace: 'nowrap',
+                  flexShrink: 0,
                 }}
               >
                 {s.label}
               </button>
             ))}
           </div>
+          {/* Fade hint on right edge to signal scrollability */}
+          <div style={{
+            position: 'absolute', top: 0, right: 0, width: 40, height: '100%',
+            background: 'linear-gradient(to right, transparent, white)',
+            pointerEvents: 'none',
+          }} />
         </div>
       </nav>
 
