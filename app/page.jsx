@@ -1,352 +1,518 @@
 'use client';
 
-import { useState, useMemo, lazy, Suspense } from 'react';
-import { MapPin, Info, Search, Filter, X, TrendingUp, Wind, Users, Globe, Home, Building2, BarChart3, ChevronDown } from 'lucide-react';
-import { irishRegions, europeanCountries, euAverages, irelandNational } from './data';
-import TrendChart from './components/TrendChart';
-import MetricCard from './components/MetricCard';
-import SearchFilter from './components/SearchFilter';
+import { useState, lazy, Suspense } from 'react';
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  LineChart, Line, Legend, Cell, ReferenceLine,
+} from 'recharts';
+import { irishRegions, europeanCountries, euAverages, irelandNational, countyData, macroIndicators, costOfLivingData, taxRevenue, govSpending, nationalDebt } from './data';
+import ScatterPlot from './components/ScatterPlot';
 
-// Lazy-load heavy tabs
-const RenewableEnergy = lazy(() => import('./components/RenewableEnergy'));
-const FDIAnalysis = lazy(() => import('./components/FDIAnalysis'));
-const PopulationProjections = lazy(() => import('./components/PopulationProjections'));
-const CostOfLiving = lazy(() => import('./components/CostOfLiving'));
-const SectoralComposition = lazy(() => import('./components/SectoralComposition'));
-const InfrastructureBreakdown = lazy(() => import('./components/InfrastructureBreakdown'));
-const EuropeanComparison = lazy(() => import('./components/EuropeanComparison'));
-const RegionalChart = lazy(() => import('./components/RegionalChart'));
-const GovSpending = lazy(() => import('./components/GovSpending'));
-const TaxBreakdown = lazy(() => import('./components/TaxBreakdown'));
-const DebtDashboard = lazy(() => import('./components/DebtDashboard'));
-const MacroSnapshot = lazy(() => import('./components/MacroSnapshot'));
+const MethodsPage = lazy(() => import('./components/MethodsPage'));
 
-const TABS = [
-  { id: 'overview',    label: 'Overview',       icon: TrendingUp },
-  { id: 'europe',      label: 'Europe',         icon: Globe },
-  { id: 'energy',      label: 'Renewable Energy', icon: Wind },
-  { id: 'population',  label: 'Population',     icon: Users },
-  { id: 'fdi',         label: 'FDI',            icon: Building2 },
-  { id: 'cost',        label: 'Cost of Living', icon: Home },
-  { id: 'sectors',     label: 'Sectors',        icon: BarChart3 },
-  { id: 'infra',       label: 'Infrastructure', icon: Building2 },
-  { id: 'spending',    label: 'Gov Spending',   icon: Building2 },
-  { id: 'tax',         label: 'Tax Revenue',    icon: TrendingUp },
-  { id: 'debt',        label: 'National Debt',  icon: BarChart3 },
+const SECTIONS = [
+  { id: 'overview', label: 'Overview' },
+  { id: 'output', label: 'Regional Output' },
+  { id: 'household', label: 'Household Income' },
+  { id: 'fiscal', label: 'Fiscal Picture' },
+  { id: 'europe', label: 'Ireland & Europe' },
+  { id: 'methods', label: 'Methods & Sources' },
 ];
 
-function TabLoader() {
-  return <div className="flex items-center justify-center h-48 text-irish-muted text-sm">Loading analysis...</div>;
+const chartGreen = '#0D6B4F';
+const chartGreenLight = '#8BAF9E';
+const chartGrey = '#C5CCC9';
+const axisColor = '#6B6860';
+const gridColor = '#F0EDE8';
+
+function SectionTitle({ children, finding }) {
+  return (
+    <div className="mb-8">
+      <h2 style={{ fontSize: 28, marginBottom: 8 }}>{children}</h2>
+      {finding && <p style={{ color: '#6B6860', fontSize: 15, maxWidth: 800, lineHeight: 1.6 }}>{finding}</p>}
+    </div>
+  );
+}
+
+function ChartPanel({ title, children, source, whatThisMeans }) {
+  return (
+    <div className="card" style={{ padding: '28px 28px 20px' }}>
+      {title && <h3 style={{ fontSize: 18, marginBottom: 16 }}>{title}</h3>}
+      {children}
+      {source && <p className="source-note">{source}</p>}
+      {whatThisMeans && (
+        <div style={{ marginTop: 16, padding: '16px 20px', background: '#F9F8F4', borderRadius: 8, border: '1px solid #EDEAE4' }}>
+          <p style={{ fontSize: 14, color: '#6B6860', lineHeight: 1.65, fontStyle: 'italic' }}>{whatThisMeans}</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function KPICard({ label, value, sub }) {
+  return (
+    <div className="card" style={{ padding: '20px 24px' }}>
+      <div style={{ fontSize: 12, color: '#A8A69F', marginBottom: 4, fontFamily: "'DM Sans', system-ui, sans-serif" }}>{label}</div>
+      <div style={{ fontSize: 24, fontWeight: 700, color: '#0D6B4F', fontFamily: "'DM Sans', system-ui, sans-serif" }}>{value}</div>
+      {sub && <div style={{ fontSize: 11, color: '#A8A69F', marginTop: 4 }}>{sub}</div>}
+    </div>
+  );
+}
+
+function ChartTooltip({ active, payload, label, prefix = '€', suffix = '' }) {
+  if (!active || !payload?.length) return null;
+  return (
+    <div style={{ background: 'white', border: '1px solid #E2DFD8', borderRadius: 8, padding: '10px 14px', fontSize: 12, color: '#1A1916', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
+      <div style={{ fontWeight: 600, marginBottom: 4 }}>{label}</div>
+      {payload.map((p, i) => (
+        <div key={i} style={{ color: p.color || '#0D6B4F' }}>
+          {p.name}: {prefix}{typeof p.value === 'number' ? p.value.toLocaleString() : p.value}{suffix}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// SVG Logo — abstract harp mark
+function Logo() {
+  return (
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+      <circle cx="16" cy="16" r="15" stroke="#0D6B4F" strokeWidth="2" fill="none" />
+      <line x1="16" y1="6" x2="16" y2="26" stroke="#0D6B4F" strokeWidth="1.5" />
+      <path d="M12 10 Q16 4 20 10" stroke="#0D6B4F" strokeWidth="1.5" fill="none" />
+      <line x1="12" y1="12" x2="12" y2="24" stroke="#0D6B4F" strokeWidth="1" opacity="0.5" />
+      <line x1="20" y1="12" x2="20" y2="24" stroke="#0D6B4F" strokeWidth="1" opacity="0.5" />
+    </svg>
+  );
 }
 
 export default function Dashboard() {
-  const [selectedRegion, setSelectedRegion] = useState('dublin');
-  const [showMetric, setShowMetric] = useState('gva');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filterInfra, setFilterInfra] = useState('all');
-  const [activeTab, setActiveTab] = useState('overview');
-  const [showInsights, setShowInsights] = useState(false);
+  const [activeSection, setActiveSection] = useState('overview');
 
-  const selected = irishRegions.find(r => r.id === selectedRegion);
-  const filteredRegions = useMemo(() => irishRegions.filter(region => {
-    const matchesSearch = region.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesInfra =
-      filterInfra === 'all' ||
-      (filterInfra === 'developed' && region.infraScore >= 60) ||
-      (filterInfra === 'moderate' && region.infraScore >= 40 && region.infraScore < 60) ||
-      (filterInfra === 'underdeveloped' && region.infraScore < 40);
-    return matchesSearch && matchesInfra;
-  }), [searchQuery, filterInfra]);
+  // Prepare chart data
+  const regionGvaData = irishRegions
+    .map(r => ({ name: r.shortName, gva: r.gva[2024], color: r.color }))
+    .sort((a, b) => b.gva - a.gva);
 
-  const gvaDiff = ((selected.gva[2024] - irelandNational.gvaPerCapita) / irelandNational.gvaPerCapita * 100).toFixed(1);
-  const infraDiff = (selected.infraScore - 65).toFixed(0);
+  const countyGvaData = [...countyData]
+    .sort((a, b) => b.gva - a.gva);
+
+  const gdpPopData = irishRegions.map(r => ({
+    name: r.shortName,
+    'GDP Share %': r.gdpShare,
+    'Population Share %': Math.round(r.population / 54000),
+  }));
+
+  const dublinTrend = Object.entries(irishRegions.find(r => r.id === 'dublin').gva).map(([y, v]) => ({
+    year: +y, Dublin: v, Border: irishRegions.find(r => r.id === 'northwest').gva[+y],
+  }));
+
+  const rentIncomeData = [...costOfLivingData].sort((a, b) => b.rentToIncome - a.rentToIncome);
+
+  const unemploymentData = irishRegions
+    .map(r => ({ name: r.shortName, rate: r.unemployment[2024] }))
+    .sort((a, b) => b.rate - a.rate);
+
+  const incomeRentData = irishRegions.map(r => ({
+    name: r.shortName,
+    'Disposable Income': r.disposable[2024],
+    'Annual Rent': r.rent * 12,
+  }));
+
+  const taxData = [...taxRevenue.breakdown2024].sort((a, b) => b.amount - a.amount);
+  const spendData = [...govSpending.breakdown2024].sort((a, b) => b.amount - a.amount);
+
+  const debtYears = Object.keys(nationalDebt.history.gdpPct).map(Number);
+  const debtLineData = debtYears.map(y => ({
+    year: y,
+    'Debt/GDP %': nationalDebt.history.gdpPct[y],
+    'Debt/GNI* %': nationalDebt.history.gniPct[y],
+  }));
+
+  const euBarData = europeanCountries
+    .filter(c => c.category !== 'ireland')
+    .concat([{ name: 'Ireland', gvaPerCapita: irelandNational.gvaPerCapita, category: 'ireland' }])
+    .sort((a, b) => b.gvaPerCapita - a.gvaPerCapita);
 
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #0a1f0f 0%, #0d2b18 40%, #0f1f2e 100%)' }}>
-
-      {/* Header */}
-      <header className="border-b border-irish-border sticky top-0 z-50 backdrop-blur-md" style={{ backgroundColor: 'rgba(10,31,15,0.9)' }}>
-        <div className="max-w-7xl mx-auto px-6 py-5">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="relative">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #169B62, #FF7900)' }}>
-                  <MapPin className="w-5 h-5 text-white" />
-                </div>
-              </div>
-              <div>
-                <h1 className="text-2xl font-extrabold tracking-tight" style={{ background: 'linear-gradient(90deg, #169B62, #ffffff, #FF7900)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-                  Irish Regional Economics
-                </h1>
-                <p className="text-xs text-slate-400">2024 Analysis · EU Benchmarks · Policy Intelligence</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="text-xs text-slate-500 bg-slate-800/60 px-3 py-1.5 rounded-lg font-semibold border border-irish-border">11 Tabs</span>
-            </div>
+    <div style={{ minHeight: '100vh', background: '#F5F4F0' }}>
+      {/* ── Sticky Nav ── */}
+      <nav style={{ position: 'sticky', top: 0, zIndex: 50, background: 'white', borderBottom: '1px solid #E2DFD8' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px', display: 'flex', alignItems: 'center', gap: 24 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 0', flexShrink: 0 }}>
+            <Logo />
+            <span style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: 18, color: '#1A1916' }}>Irish Regional Economics</span>
           </div>
-        </div>
-      </header>
-
-      {/* Tabs */}
-      <div className="border-b border-irish-border sticky top-[73px] z-40 backdrop-blur-sm overflow-x-auto" style={{ backgroundColor: 'rgba(13,43,24,0.85)' }}>
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex gap-1 min-w-max">
-            {TABS.map(({ id, label, icon: Icon }) => (
+          <div style={{ display: 'flex', gap: 2, overflow: 'auto', flex: 1 }}>
+            {SECTIONS.map(s => (
               <button
-                key={id}
-                onClick={() => setActiveTab(id)}
-                className="flex items-center gap-1.5 py-4 px-3 border-b-2 transition-all text-sm whitespace-nowrap"
+                key={s.id}
+                onClick={() => setActiveSection(s.id)}
                 style={{
-                  borderColor: activeTab === id ? '#169B62' : 'transparent',
-                  color: activeTab === id ? '#4ade80' : '#94a3b8',
-                  fontWeight: activeTab === id ? 700 : 400,
+                  padding: '14px 14px',
+                  fontSize: 14,
+                  fontFamily: "'DM Sans', system-ui, sans-serif",
+                  fontWeight: activeSection === s.id ? 600 : 400,
+                  color: activeSection === s.id ? '#0D6B4F' : '#6B6860',
+                  background: 'none',
+                  border: 'none',
+                  borderBottom: activeSection === s.id ? '2px solid #0D6B4F' : '2px solid transparent',
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap',
                 }}
               >
-                <Icon className="w-3.5 h-3.5" />
-                {label}
+                {s.label}
               </button>
             ))}
           </div>
         </div>
-      </div>
+      </nav>
 
-      <main className="max-w-7xl mx-auto px-6 py-8 space-y-8">
+      <main style={{ maxWidth: 1100, margin: '0 auto', padding: '40px 24px 80px' }}>
 
-        {/* ── TABS ── */}
-        {activeTab === 'overview' && (
-          <>
-            <SearchFilter searchQuery={searchQuery} setSearchQuery={setSearchQuery} filterInfra={filterInfra} setFilterInfra={setFilterInfra} />
+        {/* ════════════════ SECTION 1: OVERVIEW ════════════════ */}
+        {activeSection === 'overview' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
+            <SectionTitle finding="Ireland's national GVA per person (€99,513) is among the highest in Europe, but this masks a 5.6-fold gap between Dublin and the Border region. National income figures are further inflated by multinational activity — GNI*, a more realistic measure of domestic income, stands at €321bn, or 57% of GDP.">
+              Ireland&apos;s Regional Economy in 2024
+            </SectionTitle>
 
-            {/* National KPIs */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <MetricCard label="National GVA/Capita" value={`€${irelandNational.gvaPerCapita.toLocaleString()}`} change="+2.8% YoY" trend="up" color="green" />
-              <MetricCard label="vs EU Average" value={`+${((irelandNational.gvaPerCapita / euAverages.gvaPerCapita - 1) * 100).toFixed(0)}%`} change="€42,500 EU avg" trend="up" color="blue" />
-              <MetricCard label="Unemployment" value="4.5%" change="-0.2% YoY" trend="down" color="green" />
-              <MetricCard label="Regional Disparity" value="5.6×" change="Dublin vs NW" trend="stable" color="orange" />
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16 }}>
+              <KPICard label="National GVA per person" value="€99,513" sub="Source: CSO 2024" />
+              <KPICard label="GNI* (true domestic income)" value="€321.1bn" sub="Source: CSO ANA 2024" />
+              <KPICard label="National unemployment" value="4.5%" sub="Source: CSO 2024" />
+              <KPICard label="Regional disparity (Dublin÷Border)" value="5.6×" sub="Calculated from CSO NUTS3 data" />
             </div>
 
-            {/* GDP vs GNI* snapshot */}
-            <Suspense fallback={<TabLoader />}>
-              <MacroSnapshot />
-            </Suspense>
-
-            {/* Bar chart */}
-            <div className="rounded-2xl border p-6" style={{ borderColor: '#1a3a28', background: 'rgba(13,43,24,0.5)' }}>
-              <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-irish-green" />
-                Regional Comparison
-              </h2>
-              <Suspense fallback={<TabLoader />}>
-                <RegionalChart regions={filteredRegions} metric={showMetric} />
-              </Suspense>
-              <div className="mt-4 flex gap-3">
-                {[['gva','GVA/Capita'],['disposable','Disposable Income'],['unemployment','Unemployment %']].map(([k,l]) => (
-                  <button key={k} onClick={() => setShowMetric(k)}
-                    className="px-4 py-2 rounded-lg text-sm font-medium transition-all"
-                    style={{ backgroundColor: showMetric === k ? '#169B62' : 'rgba(30,50,38,0.8)', color: showMetric === k ? '#fff' : '#94a3b8', border: `1px solid ${showMetric === k ? '#169B62' : '#1a3a28'}` }}>
-                    {l}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Region selector grid */}
-            <div className="rounded-2xl border p-6" style={{ borderColor: '#1a3a28', background: 'rgba(13,43,24,0.5)' }}>
-              <h2 className="text-lg font-bold mb-4">Select Region</h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                {filteredRegions.map(r => (
-                  <button key={r.id} onClick={() => setSelectedRegion(r.id)}
-                    className="p-4 rounded-xl border-2 text-left transition-all"
-                    style={{ borderColor: selectedRegion === r.id ? r.color : '#1a3a28', backgroundColor: selectedRegion === r.id ? r.color + '15' : 'rgba(13,43,24,0.4)' }}>
-                    <div className="font-semibold text-sm text-white">{r.shortName}</div>
-                    <div className="text-xs text-slate-400 mt-0.5">€{r.gva[2024].toLocaleString()}</div>
-                    <span className="inline-block mt-2 px-2 py-0.5 rounded text-xs font-semibold" style={{ backgroundColor: r.color + '25', color: r.color }}>{r.infraLabel}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Region detail + trend */}
-            {selected && (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="rounded-2xl border p-6 space-y-4" style={{ borderColor: selected.color + '40', background: 'rgba(13,43,24,0.6)' }}>
-                  <div className="flex items-start justify-between">
-                    <h3 className="text-xl font-bold">{selected.name}</h3>
-                    <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: selected.color + '20', border: `2px solid ${selected.color}` }}>
-                      <span className="text-xs font-bold" style={{ color: selected.color }}>{selected.shortName[0]}</span>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    {[
-                      { label: 'Population', value: selected.populationLabel },
-                      { label: 'GDP Share', value: `${selected.gdpShare}%` },
-                      { label: 'GVA/Capita 2024', value: `€${selected.gva[2024].toLocaleString()}`, sub: `${gvaDiff > 0 ? '+' : ''}${gvaDiff}% vs national`, subColor: gvaDiff > 0 ? '#4ade80' : '#f87171' },
-                      { label: 'Infrastructure', value: `${selected.infraScore}/100`, sub: `${infraDiff > 0 ? '+' : ''}${infraDiff} vs avg`, subColor: infraDiff > 0 ? '#4ade80' : '#f87171' },
-                    ].map(m => (
-                      <div key={m.label} className="rounded-lg p-3" style={{ backgroundColor: 'rgba(255,255,255,0.04)' }}>
-                        <div className="text-xs text-slate-400 mb-1">{m.label}</div>
-                        <div className="font-bold text-white">{m.value}</div>
-                        {m.sub && <div className="text-xs mt-0.5" style={{ color: m.subColor }}>{m.sub}</div>}
-                      </div>
+            <ChartPanel
+              title="GVA per Person by NUTS3 Region, 2024"
+              source="Source: CSO County Incomes and GDP 2024, Table 4.1"
+              whatThisMeans="Dublin's GVA per person (€173,586) is more than double the national average and over five times that of the Border region (€31,057). This gap has widened since 2015, driven by Dublin's concentration of high-value multinational activity. Regions outside Leinster have seen slower growth and increasing brain drain."
+            >
+              <ResponsiveContainer width="100%" height={320}>
+                <BarChart data={regionGvaData} layout="vertical" margin={{ top: 5, right: 60, left: 10, bottom: 5 }}>
+                  <CartesianGrid stroke={gridColor} horizontal={false} />
+                  <XAxis type="number" tick={{ fontSize: 11, fill: axisColor }} tickFormatter={v => `€${(v/1000).toFixed(0)}k`} />
+                  <YAxis type="category" dataKey="name" tick={{ fontSize: 12, fill: axisColor, fontFamily: "'DM Sans', system-ui, sans-serif" }} width={100} />
+                  <Tooltip content={<ChartTooltip />} />
+                  <ReferenceLine x={irelandNational.gvaPerCapita} stroke={chartGreenLight} strokeDasharray="6 4" label={{ value: 'National avg', position: 'top', fontSize: 10, fill: axisColor }} />
+                  <Bar dataKey="gva" radius={[0, 6, 6, 0]} label={{ position: 'right', formatter: v => `€${v.toLocaleString()}`, fontSize: 11, fill: axisColor }}>
+                    {regionGvaData.map((d, i) => (
+                      <Cell key={i} fill={d.gva >= irelandNational.gvaPerCapita ? chartGreen : chartGreenLight} />
                     ))}
-                  </div>
-                  <div>
-                    <div className="text-xs text-slate-400 mb-1">Infrastructure Score</div>
-                    <div className="w-full bg-slate-700 rounded-full h-2">
-                      <div className="h-2 rounded-full transition-all" style={{ width: `${selected.infraScore}%`, backgroundColor: selected.color }} />
-                    </div>
-                  </div>
-                  <div className="rounded-lg p-3 text-sm text-slate-300 border border-slate-700/50 italic">"{selected.description}"</div>
-                  <div className="text-xs text-slate-400 flex items-start gap-1">
-                    <Info className="w-3 h-3 mt-0.5 flex-shrink-0 text-amber-400" />
-                    {selected.keyConstraints}
-                  </div>
-                </div>
-                <div className="rounded-2xl border p-6" style={{ borderColor: '#1a3a28', background: 'rgba(13,43,24,0.5)' }}>
-                  <h4 className="font-bold mb-4">GVA &amp; Income Trend (2020–2024)</h4>
-                  <TrendChart region={selected} />
-                </div>
-              </div>
-            )}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartPanel>
 
-            {/* Full table */}
-            <div className="rounded-2xl border overflow-hidden" style={{ borderColor: '#1a3a28', background: 'rgba(13,43,24,0.5)' }}>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
+            <ChartPanel
+              title="GVA per Person Divergence: Dublin vs Border, 2015–2024"
+              source="Source: CSO County Incomes and GDP, various years"
+            >
+              <ResponsiveContainer width="100%" height={280}>
+                <LineChart data={dublinTrend} margin={{ top: 10, right: 20, left: 10, bottom: 5 }}>
+                  <CartesianGrid stroke={gridColor} />
+                  <XAxis dataKey="year" tick={{ fontSize: 12, fill: axisColor }} />
+                  <YAxis tick={{ fontSize: 11, fill: axisColor }} tickFormatter={v => `€${(v/1000).toFixed(0)}k`} />
+                  <Tooltip content={<ChartTooltip />} />
+                  <Legend wrapperStyle={{ fontSize: 12, fontFamily: "'DM Sans', system-ui, sans-serif" }} />
+                  <Line type="monotone" dataKey="Dublin" stroke={chartGreen} strokeWidth={2.5} dot={{ r: 3 }} />
+                  <Line type="monotone" dataKey="Border" stroke={chartGrey} strokeWidth={2.5} dot={{ r: 3 }} />
+                </LineChart>
+              </ResponsiveContainer>
+            </ChartPanel>
+          </div>
+        )}
+
+        {/* ════════════════ SECTION 2: REGIONAL OUTPUT ════════════════ */}
+        {activeSection === 'output' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
+            <SectionTitle finding="Six of Ireland's eight NUTS3 regions produce GVA per person below the national average. Dublin and South-West account for the majority of national output, while the Border and Midlands regions lag significantly.">
+              Where Output Is Concentrated
+            </SectionTitle>
+
+            <ChartPanel
+              title="GVA per Person by County, 2024 (CSO Table 4.1)"
+              source="Source: CSO County Incomes and GDP 2024. Note: Cork and Kerry GVA figures are combined as 'South-West' — CSO suppresses individual county figures for confidentiality reasons."
+            >
+              <ResponsiveContainer width="100%" height={Math.max(400, countyGvaData.length * 28)}>
+                <BarChart data={countyGvaData} layout="vertical" margin={{ top: 5, right: 60, left: 10, bottom: 5 }}>
+                  <CartesianGrid stroke={gridColor} horizontal={false} />
+                  <XAxis type="number" tick={{ fontSize: 11, fill: axisColor }} tickFormatter={v => `€${(v/1000).toFixed(0)}k`} />
+                  <YAxis type="category" dataKey="name" tick={{ fontSize: 11, fill: axisColor, fontFamily: "'DM Sans', system-ui, sans-serif" }} width={160} />
+                  <Tooltip content={<ChartTooltip />} />
+                  <ReferenceLine x={irelandNational.gvaPerCapita} stroke={chartGreenLight} strokeDasharray="6 4" label={{ value: 'National avg €99,513', position: 'top', fontSize: 10, fill: axisColor }} />
+                  <Bar dataKey="gva" radius={[0, 4, 4, 0]}>
+                    {countyGvaData.map((d, i) => (
+                      <Cell key={i} fill={d.gva >= irelandNational.gvaPerCapita ? chartGreen : chartGreenLight} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartPanel>
+
+            <ChartPanel
+              title="GDP Share vs Population Share by Region"
+              source="Source: CSO Regional GDP 2024; CSO Census 2022"
+              whatThisMeans="Dublin contributes 41% of national GDP while housing 23% of the population. The Border region, with 4% of population, generates just 2% of national output. FDI is highly concentrated in the Eastern & Midland NUTS2 region (71% of investment value), reinforcing existing disparities."
+            >
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={gdpPopData} margin={{ top: 10, right: 20, left: 0, bottom: 40 }}>
+                  <CartesianGrid stroke={gridColor} />
+                  <XAxis dataKey="name" tick={{ fontSize: 11, fill: axisColor }} angle={-30} textAnchor="end" height={60} />
+                  <YAxis tick={{ fontSize: 11, fill: axisColor }} tickFormatter={v => `${v}%`} />
+                  <Tooltip content={<ChartTooltip prefix="" suffix="%" />} />
+                  <Legend wrapperStyle={{ fontSize: 12, fontFamily: "'DM Sans', system-ui, sans-serif" }} />
+                  <Bar dataKey="GDP Share %" fill={chartGreen} radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="Population Share %" fill={chartGrey} radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartPanel>
+
+            {/* County table */}
+            <div className="card" style={{ overflow: 'hidden' }}>
+              <div style={{ padding: '20px 28px 8px' }}>
+                <h3 style={{ fontSize: 18 }}>County GVA Data</h3>
+              </div>
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ fontSize: 13 }}>
                   <thead>
-                    <tr className="border-b" style={{ borderColor: '#1a3a28', backgroundColor: 'rgba(10,31,15,0.7)' }}>
-                      {['Region','GVA/Capita','Disposable','Unemployment','FDI Share','Infra Score','Status'].map(h => (
-                        <th key={h} className="px-5 py-4 text-left font-semibold text-slate-300">{h}</th>
-                      ))}
+                    <tr style={{ borderBottom: '1px solid #E2DFD8', background: '#F9F8F4' }}>
+                      <th style={{ padding: '10px 20px', textAlign: 'left', color: '#6B6860' }}>County / Region</th>
+                      <th style={{ padding: '10px 20px', textAlign: 'right', color: '#6B6860' }}>GVA per Person</th>
+                      <th style={{ padding: '10px 20px', textAlign: 'right', color: '#6B6860' }}>vs National Avg</th>
+                      <th style={{ padding: '10px 20px', textAlign: 'left', color: '#6B6860' }}>NUTS3 Region</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredRegions.map((r, i) => (
-                      <tr key={i} className="border-b border-slate-700/30 hover:bg-white/5 transition-colors cursor-pointer" onClick={() => setSelectedRegion(r.id)}>
-                        <td className="px-5 py-4 font-semibold">{r.name}</td>
-                        <td className="px-5 py-4">€{r.gva[2024].toLocaleString()}</td>
-                        <td className="px-5 py-4">€{r.disposable[2024].toLocaleString()}</td>
-                        <td className="px-5 py-4">{r.unemployment[2024]}%</td>
-                        <td className="px-5 py-4">{r.fdiShare}%</td>
-                        <td className="px-5 py-4">
-                          <div className="flex items-center gap-2">
-                            <div className="w-16 bg-slate-700 rounded-full h-1.5">
-                              <div className="h-1.5 rounded-full" style={{ width: `${r.infraScore}%`, backgroundColor: r.color }} />
-                            </div>
-                            <span className="font-bold text-xs">{r.infraScore}</span>
-                          </div>
-                        </td>
-                        <td className="px-5 py-4">
-                          <span className="px-2.5 py-1 rounded-full text-xs font-semibold" style={{ backgroundColor: r.color + '20', color: r.color }}>{r.infraLabel}</span>
-                        </td>
-                      </tr>
-                    ))}
+                    {countyGvaData.map((c, i) => {
+                      const diff = ((c.gva / irelandNational.gvaPerCapita - 1) * 100).toFixed(0);
+                      return (
+                        <tr key={i} style={{ borderBottom: '1px solid #EDEAE4' }}>
+                          <td style={{ padding: '10px 20px', fontWeight: 500 }}>{c.name}</td>
+                          <td style={{ padding: '10px 20px', textAlign: 'right' }}>€{c.gva.toLocaleString()}</td>
+                          <td style={{ padding: '10px 20px', textAlign: 'right', color: diff >= 0 ? '#0D6B4F' : '#A8A69F' }}>
+                            {diff >= 0 ? '+' : ''}{diff}%
+                          </td>
+                          <td style={{ padding: '10px 20px', color: '#6B6860' }}>{c.region}</td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
+              <p className="source-note" style={{ padding: '12px 28px' }}>Source: CSO County Incomes and GDP 2024, Table 4.1</p>
             </div>
-          </>
+          </div>
         )}
 
-        {activeTab === 'europe' && (
-          <Suspense fallback={<TabLoader />}>
-            <EuropeanComparison countries={europeanCountries} averages={euAverages} regions={irishRegions} />
-          </Suspense>
+        {/* ════════════════ SECTION 3: HOUSEHOLD INCOME ════════════════ */}
+        {activeSection === 'household' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
+            <SectionTitle finding="Disposable income per person is more evenly distributed than output, but rent burden erases much of Dublin's income advantage. After housing costs, the West and South-East offer better real purchasing power than the capital.">
+              Household Income and the Cost of Living
+            </SectionTitle>
+
+            <ChartPanel
+              title="Annual Disposable Income vs Annual Rent by Region, 2024"
+              source="Source: CSO disposable income 2024; RTB Q2 2024"
+            >
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={incomeRentData} margin={{ top: 10, right: 20, left: 0, bottom: 40 }}>
+                  <CartesianGrid stroke={gridColor} />
+                  <XAxis dataKey="name" tick={{ fontSize: 11, fill: axisColor }} angle={-30} textAnchor="end" height={60} />
+                  <YAxis tick={{ fontSize: 11, fill: axisColor }} tickFormatter={v => `€${(v/1000).toFixed(0)}k`} />
+                  <Tooltip content={<ChartTooltip />} />
+                  <Legend wrapperStyle={{ fontSize: 12, fontFamily: "'DM Sans', system-ui, sans-serif" }} />
+                  <Bar dataKey="Disposable Income" fill={chartGreen} radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="Annual Rent" fill="#C5CCC9" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartPanel>
+
+            <ChartPanel
+              title="Rent as Share of Disposable Income, 2024"
+              source="Source: CSO 2024; RTB Q2 2024"
+              whatThisMeans="Dublin residents face rents that consume 77% of disposable income on average. After accounting for housing costs, regions like the West and South-East offer comparable or better purchasing power, challenging the notion that Dublin automatically offers a higher standard of living."
+            >
+              <ResponsiveContainer width="100%" height={280}>
+                <BarChart data={rentIncomeData} layout="vertical" margin={{ top: 5, right: 50, left: 10, bottom: 5 }}>
+                  <CartesianGrid stroke={gridColor} horizontal={false} />
+                  <XAxis type="number" tick={{ fontSize: 11, fill: axisColor }} tickFormatter={v => `${v}%`} domain={[0, 100]} />
+                  <YAxis type="category" dataKey="name" tick={{ fontSize: 12, fill: axisColor, fontFamily: "'DM Sans', system-ui, sans-serif" }} width={100} />
+                  <Tooltip content={<ChartTooltip prefix="" suffix="%" />} />
+                  <Bar dataKey="rentToIncome" name="Rent/Income %" radius={[0, 6, 6, 0]} label={{ position: 'right', formatter: v => `${v}%`, fontSize: 11, fill: axisColor }}>
+                    {rentIncomeData.map((d, i) => (
+                      <Cell key={i} fill={d.id === 'dublin' ? chartGreen : chartGreenLight} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartPanel>
+
+            <ChartPanel
+              title="Unemployment Rate by Region, 2024"
+              source="Source: CSO Labour Force Survey 2024"
+            >
+              <ResponsiveContainer width="100%" height={280}>
+                <BarChart data={unemploymentData} layout="vertical" margin={{ top: 5, right: 50, left: 10, bottom: 5 }}>
+                  <CartesianGrid stroke={gridColor} horizontal={false} />
+                  <XAxis type="number" tick={{ fontSize: 11, fill: axisColor }} tickFormatter={v => `${v}%`} domain={[0, 10]} />
+                  <YAxis type="category" dataKey="name" tick={{ fontSize: 12, fill: axisColor, fontFamily: "'DM Sans', system-ui, sans-serif" }} width={100} />
+                  <Tooltip content={<ChartTooltip prefix="" suffix="%" />} />
+                  <Bar dataKey="rate" name="Unemployment %" fill={chartGreenLight} radius={[0, 6, 6, 0]} label={{ position: 'right', formatter: v => `${v}%`, fontSize: 11, fill: axisColor }} />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartPanel>
+          </div>
         )}
 
-        {activeTab === 'energy' && (
-          <Suspense fallback={<TabLoader />}>
-            <RenewableEnergy />
-          </Suspense>
-        )}
+        {/* ════════════════ SECTION 4: FISCAL PICTURE ════════════════ */}
+        {activeSection === 'fiscal' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
+            <SectionTitle finding="Ireland collected €126bn in taxes in 2024. Corporation tax — dominated by a handful of multinationals — now represents 22% of all tax receipts, creating a structural concentration risk. Against GNI* (the real domestic economy), the national debt is 67% — much higher than the GDP-based figure of 38% suggests.">
+              Public Finances: Revenue, Spending, and Debt
+            </SectionTitle>
 
-        {activeTab === 'population' && (
-          <Suspense fallback={<TabLoader />}>
-            <PopulationProjections />
-          </Suspense>
-        )}
+            <ChartPanel
+              title="Tax Revenue by Category, 2024 (€bn)"
+              source="Source: CSO Tax Statistics 2024"
+            >
+              <ResponsiveContainer width="100%" height={320}>
+                <BarChart data={taxData} layout="vertical" margin={{ top: 5, right: 50, left: 10, bottom: 5 }}>
+                  <CartesianGrid stroke={gridColor} horizontal={false} />
+                  <XAxis type="number" tick={{ fontSize: 11, fill: axisColor }} tickFormatter={v => `€${v}bn`} />
+                  <YAxis type="category" dataKey="tax" tick={{ fontSize: 11, fill: axisColor, fontFamily: "'DM Sans', system-ui, sans-serif" }} width={160} />
+                  <Tooltip content={({ active, payload }) => {
+                    if (!active || !payload?.length) return null;
+                    const d = payload[0].payload;
+                    return (
+                      <div style={{ background: 'white', border: '1px solid #E2DFD8', borderRadius: 8, padding: '10px 14px', fontSize: 12, color: '#1A1916', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
+                        <div style={{ fontWeight: 600 }}>{d.tax}</div>
+                        <div>€{d.amount}bn ({d.pct}% of total)</div>
+                      </div>
+                    );
+                  }} />
+                  <Bar dataKey="amount" fill={chartGreen} radius={[0, 6, 6, 0]} label={{ position: 'right', formatter: v => `€${v}bn`, fontSize: 11, fill: axisColor }} />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartPanel>
 
-        {activeTab === 'fdi' && (
-          <Suspense fallback={<TabLoader />}>
-            <FDIAnalysis />
-          </Suspense>
-        )}
-
-        {activeTab === 'cost' && (
-          <Suspense fallback={<TabLoader />}>
-            <CostOfLiving />
-          </Suspense>
-        )}
-
-        {activeTab === 'sectors' && (
-          <Suspense fallback={<TabLoader />}>
-            <SectoralComposition />
-          </Suspense>
-        )}
-
-        {activeTab === 'infra' && (
-          <Suspense fallback={<TabLoader />}>
-            <InfrastructureBreakdown selectedId={selectedRegion} />
-          </Suspense>
-        )}
-
-        {activeTab === 'spending' && (
-          <Suspense fallback={<TabLoader />}>
-            <GovSpending />
-          </Suspense>
-        )}
-
-        {activeTab === 'tax' && (
-          <Suspense fallback={<TabLoader />}>
-            <TaxBreakdown />
-          </Suspense>
-        )}
-
-        {activeTab === 'debt' && (
-          <Suspense fallback={<TabLoader />}>
-            <DebtDashboard />
-          </Suspense>
-        )}
-
-        {/* Collapsible Key Insights */}
-        <div className="rounded-2xl border overflow-hidden" style={{ borderColor: '#1a3a28', background: 'rgba(13,43,24,0.5)' }}>
-          <button className="w-full px-6 py-4 flex items-center justify-between text-left" onClick={() => setShowInsights(v => !v)}>
-            <div className="flex items-center gap-2 font-bold"><Info className="w-4 h-4 text-irish-green" />Key Insights & Policy Implications</div>
-            <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${showInsights ? 'rotate-180' : ''}`} />
-          </button>
-          {showInsights && (
-            <div className="px-6 pb-6 grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-slate-700/30">
-              <div>
-                <h4 className="font-semibold text-irish-green mb-3 mt-4">Economic Insights</h4>
-                <ul className="space-y-2 text-sm text-slate-300">
-                  <li>• Dublin (41% GDP, 23% population) creates severe agglomeration effects</li>
-                  <li>• GVA/capita €99,513 overstates domestic wealth — GNI* per capita is €59,463 once MNC distortions removed</li>
-                  <li>• North-West GVA 5.6× lower than Dublin; growing divergence since 2015</li>
-                  <li>• 71% of FDI locked in Eastern & Midland region; West gets 4%</li>
-                  <li>• After rent, Dublin's purchasing power advantage nearly disappears</li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-semibold text-orange-400 mb-3 mt-4">Policy Priorities</h4>
-                <ul className="space-y-2 text-sm text-slate-300">
-                  <li>• Grid investment in West/NW is critical for 2030 renewable targets</li>
-                  <li>• Water and housing infrastructure must precede regional FDI attraction</li>
-                  <li>• NDP allocations underserve lagging regions relative to population share</li>
-                  <li>• Brain drain from Midlands/NW creating vicious cycle of decline</li>
-                  <li>• IDA regionalization policy needs teeth — value not just investment counts</li>
-                </ul>
-              </div>
+            {/* Risk callout */}
+            <div className="card" style={{ padding: '20px 28px', borderLeft: '4px solid #0D6B4F' }}>
+              <p style={{ fontSize: 14, fontWeight: 600, color: '#0D6B4F', marginBottom: 4 }}>Corporation Tax Concentration Risk</p>
+              <p style={{ fontSize: 14, color: '#6B6860', lineHeight: 1.6 }}>
+                46% of all corporation tax was paid by just 3 companies in 2024 (Apple, Microsoft, Eli Lilly). 88% of CT comes from foreign-owned multinationals. Corporation tax now accounts for 22% of all government revenue — creating a structural fiscal vulnerability.
+              </p>
+              <p className="source-note">Source: IFAC Fiscal Assessment Report, February 2026</p>
             </div>
-          )}
-        </div>
 
-        {/* Footer */}
-        <div className="text-xs text-slate-500 pb-8 space-y-1 border-t border-slate-800 pt-6">
-          <p className="font-semibold text-slate-400">Data Sources</p>
-          <p>CSO County Incomes & Regional GDP 2024 · CSO Housing Statistics 2024 · EPA Urban Wastewater Report 2023 · EirGrid Transmission Capacity Reports · Wind Energy Ireland 2024 · Comreg/National Broadband Plan · RTB Rent Index Q2 2024 · Daft.ie 2025 · CSO Population Projections Jan 2025 · CSO FDI Statistics 2023 · National Development Plan 2021–2030 · Budget 2025 · Eurostat Regional Statistics 2024 · IMF World Economic Outlook 2024 · WEF Global Competitiveness Index 2023-24</p>
-        </div>
+            <ChartPanel
+              title="Government Expenditure by Department, 2024 (€bn)"
+              source="Source: whereyourmoneygoes.gov.ie"
+            >
+              <ResponsiveContainer width="100%" height={320}>
+                <BarChart data={spendData} layout="vertical" margin={{ top: 5, right: 50, left: 10, bottom: 5 }}>
+                  <CartesianGrid stroke={gridColor} horizontal={false} />
+                  <XAxis type="number" tick={{ fontSize: 11, fill: axisColor }} tickFormatter={v => `€${v}bn`} />
+                  <YAxis type="category" dataKey="category" tick={{ fontSize: 11, fill: axisColor, fontFamily: "'DM Sans', system-ui, sans-serif" }} width={130} />
+                  <Tooltip content={({ active, payload }) => {
+                    if (!active || !payload?.length) return null;
+                    const d = payload[0].payload;
+                    return (
+                      <div style={{ background: 'white', border: '1px solid #E2DFD8', borderRadius: 8, padding: '10px 14px', fontSize: 12, color: '#1A1916', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
+                        <div style={{ fontWeight: 600 }}>{d.category}</div>
+                        <div>€{d.amount.toFixed(1)}bn</div>
+                      </div>
+                    );
+                  }} />
+                  <Bar dataKey="amount" fill={chartGreenLight} radius={[0, 6, 6, 0]} label={{ position: 'right', formatter: v => `€${v}bn`, fontSize: 11, fill: axisColor }} />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartPanel>
+
+            <ChartPanel
+              title="National Debt: % of GDP vs % of GNI*, 2019–2024"
+              source="Source: CSO Government Finance Statistics 2024"
+              whatThisMeans="Ireland's debt/GDP ratio (38.3%) appears very low internationally. But GDP is heavily distorted by MNCs. Measured against GNI* — actual domestic income — the debt burden is 67%, much closer to EU norms."
+            >
+              <ResponsiveContainer width="100%" height={280}>
+                <LineChart data={debtLineData} margin={{ top: 10, right: 20, left: 10, bottom: 5 }}>
+                  <CartesianGrid stroke={gridColor} />
+                  <XAxis dataKey="year" tick={{ fontSize: 12, fill: axisColor }} />
+                  <YAxis tick={{ fontSize: 11, fill: axisColor }} tickFormatter={v => `${v}%`} domain={[30, 110]} />
+                  <Tooltip content={<ChartTooltip prefix="" suffix="%" />} />
+                  <Legend wrapperStyle={{ fontSize: 12, fontFamily: "'DM Sans', system-ui, sans-serif" }} />
+                  <Line type="monotone" dataKey="Debt/GDP %" stroke={chartGrey} strokeWidth={2.5} dot={{ r: 3 }} />
+                  <Line type="monotone" dataKey="Debt/GNI* %" stroke={chartGreen} strokeWidth={2.5} dot={{ r: 3 }} />
+                </LineChart>
+              </ResponsiveContainer>
+            </ChartPanel>
+          </div>
+        )}
+
+        {/* ════════════════ SECTION 5: IRELAND & EUROPE ════════════════ */}
+        {activeSection === 'europe' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
+            <SectionTitle finding="Ireland's national GVA per person (€99,513) places it among the top economies in Europe. However, this figure is significantly distorted by multinational activity — Ireland's GNI* per capita (€59,463) tells a more realistic story, placing Ireland closer to the EU average.">
+              Ireland in a European Context
+            </SectionTitle>
+
+            <div className="card" style={{ padding: '16px 24px', borderLeft: '4px solid #0D6B4F', background: '#E8F4EF' }}>
+              <p style={{ fontSize: 14, color: '#1A1916', lineHeight: 1.6 }}>
+                <strong>Note:</strong> Ireland&apos;s GDP and GVA figures are distorted by multinational profit-booking and intellectual property transfers. GNI* (Modified GNI) was developed by the CSO specifically to exclude these effects and better reflect the domestic economy.
+              </p>
+            </div>
+
+            <ChartPanel
+              title="GVA per Capita by EU Country, 2024 (€, estimated)"
+              source="Source: Eurostat Regional Statistics 2022–2023 (estimated). EU country figures are estimated; for precise Eurostat PPS comparisons see ec.europa.eu/eurostat."
+              whatThisMeans="At face value, Ireland appears to be the second-wealthiest country in Europe. GNI*, which strips out multinational distortions, gives a per-capita figure of €59,463 — still well above the EU average, but significantly lower than headline GDP suggests. Ireland's prosperity is real, but concentrated."
+            >
+              <ResponsiveContainer width="100%" height={Math.max(400, euBarData.length * 26)}>
+                <BarChart data={euBarData} layout="vertical" margin={{ top: 5, right: 60, left: 10, bottom: 5 }}>
+                  <CartesianGrid stroke={gridColor} horizontal={false} />
+                  <XAxis type="number" tick={{ fontSize: 11, fill: axisColor }} tickFormatter={v => `€${(v/1000).toFixed(0)}k`} />
+                  <YAxis type="category" dataKey="name" tick={{ fontSize: 11, fill: axisColor, fontFamily: "'DM Sans', system-ui, sans-serif" }} width={120} />
+                  <Tooltip content={<ChartTooltip />} />
+                  <ReferenceLine x={macroIndicators.gniStarPerCapita} stroke="#0D6B4F" strokeDasharray="6 4" label={{ value: 'Ireland GNI* €59,463', position: 'top', fontSize: 10, fill: '#0D6B4F' }} />
+                  <Bar dataKey="gvaPerCapita" radius={[0, 4, 4, 0]}>
+                    {euBarData.map((d, i) => (
+                      <Cell key={i} fill={d.category === 'ireland' ? chartGreen : chartGreenLight} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartPanel>
+
+            <ChartPanel
+              title="Infrastructure Score vs GVA per Capita: Irish Regions vs EU Countries"
+              source="Source: CSO 2024; Eurostat; WEF Global Competitiveness Index 2023-24"
+            >
+              <ScatterPlot
+                regions={irishRegions}
+                euCountries={europeanCountries}
+                onSelectRegion={() => {}}
+                selectedId=""
+                viewMode="region"
+              />
+            </ChartPanel>
+          </div>
+        )}
+
+        {/* ════════════════ SECTION 6: METHODS & SOURCES ════════════════ */}
+        {activeSection === 'methods' && (
+          <Suspense fallback={<div style={{ padding: 40, color: '#A8A69F', textAlign: 'center' }}>Loading...</div>}>
+            <MethodsPage />
+          </Suspense>
+        )}
       </main>
+
+      <footer style={{ maxWidth: 1100, margin: '0 auto', padding: '24px 24px 48px', borderTop: '1px solid #E2DFD8' }}>
+        <p style={{ fontSize: 12, color: '#A8A69F' }}>
+          Irish Regional Economics 2024 Analysis. Data from CSO, Eurostat, IFAC, Revenue Commissioners, RTB. Built with Next.js and Recharts.
+        </p>
+      </footer>
     </div>
   );
 }

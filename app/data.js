@@ -76,7 +76,7 @@ export const irishRegions = [
     infraLabel: 'Under-Built',
     keyConstraints: 'Water capacity critical, grid investment needed',
     description: 'Dublin overspill: rapid growth, infrastructure lagging',
-    gva: { 2015: 58000, 2016: 63000, 2017: 67000, 2018: 70000, 2019: 74000, 2020: 68000, 2021: 72500, 2022: 76300, 2023: 79100, 2024: 81859 },
+    gva: { 2015: 58000, 2016: 63000, 2017: 67000, 2018: 70000, 2019: 74000, 2020: 68000, 2021: 72500, 2022: 76300, 2023: 79100, 2024: 51505 }, // CSO NUTS3 GVA per person 2024
     disposable: { 2020: 26800, 2021: 27600, 2022: 28400, 2023: 29300, 2024: 30235 },
     unemployment: { 2020: 7.2, 2021: 6.8, 2022: 5.9, 2023: 5.4, 2024: 5.1 },
     rent: 1880,
@@ -105,7 +105,7 @@ export const irishRegions = [
     infraLabel: 'Under-Built',
     keyConstraints: 'Port infrastructure, grid capacity',
     description: 'Emerging manufacturing and services hub',
-    gva: { 2015: 38000, 2016: 41000, 2017: 44000, 2018: 48000, 2019: 51000, 2020: 48000, 2021: 50200, 2022: 52100, 2023: 53800, 2024: 55500 },
+    gva: { 2015: 38000, 2016: 41000, 2017: 44000, 2018: 48000, 2019: 51000, 2020: 48000, 2021: 50200, 2022: 52100, 2023: 53800, 2024: 43094 }, // CSO NUTS3 GVA per person 2024
     disposable: { 2020: 26200, 2021: 27000, 2022: 27800, 2023: 28600, 2024: 29400 },
     unemployment: { 2020: 7.9, 2021: 7.3, 2022: 6.5, 2023: 6.0, 2024: 5.6 },
     rent: 1420,
@@ -134,7 +134,7 @@ export const irishRegions = [
     infraLabel: 'Poorly Under-Served',
     keyConstraints: 'Grid severely constrained, roads, broadband',
     description: 'Rural region with manufacturing base but major infrastructure deficit',
-    gva: { 2015: 36000, 2016: 38000, 2017: 40000, 2018: 42000, 2019: 44000, 2020: 45000, 2021: 47800, 2022: 49500, 2023: 50800, 2024: 52000 },
+    gva: { 2015: 36000, 2016: 38000, 2017: 40000, 2018: 42000, 2019: 44000, 2020: 45000, 2021: 47800, 2022: 49500, 2023: 50800, 2024: 56988 }, // CSO NUTS3 GVA per person 2024
     disposable: { 2020: 25800, 2021: 26500, 2022: 27200, 2023: 28400, 2024: 29500 },
     unemployment: { 2020: 8.1, 2021: 7.5, 2022: 6.7, 2023: 6.2, 2024: 5.9 },
     rent: 1338,
@@ -163,7 +163,7 @@ export const irishRegions = [
     infraLabel: 'Severely Under-Built',
     keyConstraints: 'Grid transmission, wastewater, connectivity, peripherality',
     description: 'CSO Border NUTS3 region — remote, peripheral, deeply underinvested. Includes Cavan, Donegal, Leitrim, Monaghan, Sligo.',
-    gva: { 2015: 30000, 2016: 30500, 2017: 31000, 2018: 31500, 2019: 32000, 2020: 28000, 2021: 29200, 2022: 30400, 2023: 31500, 2024: 32617 },
+    gva: { 2015: 30000, 2016: 30500, 2017: 31000, 2018: 31500, 2019: 32000, 2020: 28000, 2021: 29200, 2022: 30400, 2023: 31500, 2024: 31057 }, // CSO NUTS3 GVA per person 2024
     disposable: { 2020: 22000, 2021: 22800, 2022: 23600, 2023: 24300, 2024: 25000 },
     unemployment: { 2020: 9.8, 2021: 9.2, 2022: 8.4, 2023: 7.8, 2024: 7.3 },
     rent: 1185,
@@ -192,7 +192,7 @@ export const irishRegions = [
     infraLabel: 'Severely Under-Built',
     keyConstraints: 'Manufacturing decline, grid access',
     description: 'Post-industrial region seeking reinvestment',
-    gva: { 2015: 25000, 2016: 25500, 2017: 26000, 2018: 26500, 2019: 27000, 2020: 24000, 2021: 25100, 2022: 26200, 2023: 27400, 2024: 28689 },
+    gva: { 2015: 25000, 2016: 25500, 2017: 26000, 2018: 26500, 2019: 27000, 2020: 24000, 2021: 25100, 2022: 26200, 2023: 27400, 2024: 38232 }, // CSO NUTS3 GVA per person 2024
     disposable: { 2020: 21500, 2021: 22100, 2022: 22800, 2023: 23500, 2024: 24200 },
     unemployment: { 2020: 10.2, 2021: 9.6, 2022: 8.8, 2023: 8.2, 2024: 7.7 },
     rent: 1280,
