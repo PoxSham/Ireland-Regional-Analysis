@@ -1,0 +1,62 @@
+{
+  "lastUpdated": "2026-04-13",
+  "dataYear": 2024,
+  "gdp2024Bn": 562.8,
+  "gni2024Bn": 321.1,
+  "gniAsShareOfGdp": 57.1,
+  "gvaPerCapita2024": 99513,
+  "gniStarPerCapita": 59463,
+  "mddGrowth2024": 1.8,
+  "population2024": 5180000,
+  "unemployment2024": 4.5,
+  "surplus2024Bn": 22.6,
+  "grossDebt2024Bn": 215.4,
+  "netDebt2024Bn": 155.0,
+  "debtAsShareOfGdp": 38.3,
+  "debtAsShareOfGniStar": 67.1,
+  "debtPerCapita": 39889,
+  "totalTaxRevenue2024Bn": 126.0,
+  "totalGovSpending2024Bn": 116.1,
+  "ctRevenue2024Bn": 28.1,
+  "ctAsShareOfTax": 22.3,
+  "ctTop3Share": 46,
+  "ctTop10Share": 57,
+  "ctForeignMncShare": 88,
+  "nationalWindCapacityGW": 5.89,
+  "windTarget2030GW": 9.0,
+  "renewableTarget2030GW": 22.0,
+  "gdpHistory": { "2015": 263, "2016": 294, "2017": 333, "2018": 355, "2019": 370, "2020": 383, "2021": 449, "2022": 502, "2023": 511, "2024": 563 },
+  "gniHistory": { "2015": 174, "2016": 188, "2017": 198, "2018": 212, "2019": 226, "2020": 218, "2021": 248, "2022": 272, "2023": 291, "2024": 321 },
+  "debtHistory": {
+    "grossBn": { "2019": 204, "2020": 222, "2021": 236, "2022": 216, "2023": 219, "2024": 215 },
+    "gdpPct": { "2019": 57.2, "2020": 56.9, "2021": 52.4, "2022": 42.9, "2023": 41.8, "2024": 38.3 },
+    "gniPct": { "2019": 90, "2020": 102, "2021": 95, "2022": 79, "2023": 75, "2024": 67 }
+  },
+  "taxBreakdown2024": [
+    { "tax": "Income Tax (incl. USC)", "amountBn": 30.0, "pct": 23.8 },
+    { "tax": "Corporation Tax", "amountBn": 28.1, "pct": 22.3 },
+    { "tax": "VAT", "amountBn": 21.9, "pct": 17.4 },
+    { "tax": "PRSI", "amountBn": 17.0, "pct": 13.5 },
+    { "tax": "Excise Duties", "amountBn": 6.0, "pct": 4.8 },
+    { "tax": "Other Social", "amountBn": 5.0, "pct": 4.0 },
+    { "tax": "Property Tax", "amountBn": 2.0, "pct": 1.6 },
+    { "tax": "Other", "amountBn": 16.0, "pct": 12.7 }
+  ],
+  "govSpendingBreakdown2024": [
+    { "category": "Social Protection", "amountBn": 27.0 },
+    { "category": "Health", "amountBn": 24.6 },
+    { "category": "Debt & EU", "amountBn": 12.7 },
+    { "category": "Education", "amountBn": 11.9 },
+    { "category": "Housing", "amountBn": 8.3 },
+    { "category": "Justice", "amountBn": 3.8 },
+    { "category": "Transport", "amountBn": 3.6 },
+    { "category": "Other", "amountBn": 24.4 }
+  ],
+  "populationProjections": [
+    { "year": 2022, "national": 5180000 },
+    { "year": 2027, "national": 5390000 },
+    { "year": 2032, "national": 5560000 },
+    { "year": 2037, "national": 5690000 },
+    { "year": 2042, "national": 5780000 }
+  ]
+}

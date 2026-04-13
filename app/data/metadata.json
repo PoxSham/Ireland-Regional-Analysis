@@ -1,0 +1,65 @@
+{
+  "siteName": "Irish Regional Economics",
+  "siteTagline": "A data-led analysis of Ireland's regional economy in 2024",
+  "lastUpdated": "2026-04-13",
+  "dataYear": 2024,
+  "primarySource": "CSO County Incomes and Regional GDP 2024",
+  "definitions": {
+    "gva": {
+      "term": "GVA (Gross Value Added)",
+      "definition": "The measure of the value of goods and services produced in an area, industry or sector of an economy. In Ireland, GVA and GDP are used interchangeably at regional level by the CSO. Note: Ireland's national GVA is significantly inflated by multinational activity.",
+      "unit": "€ per person (nominal, current prices)",
+      "source": "cso-county-incomes-2024"
+    },
+    "pps": {
+      "term": "PPS (Purchasing Power Standards)",
+      "definition": "An artificial common currency unit used by Eurostat to eliminate price-level differences between countries. 1 PPS has the same purchasing power as €1 in the EU as a whole. The EU average GDP per capita in PPS was €38,100 in 2023.",
+      "unit": "PPS (€ equivalent, purchasing-power adjusted)",
+      "source": "eurostat-nuts3-pps-2023"
+    },
+    "gniStar": {
+      "term": "GNI* (Modified Gross National Income)",
+      "definition": "Ireland's preferred domestic income measure, designed to remove the distorting effects of multinational activity on GDP. Excludes: undistributed profits of re-domiciled companies, depreciation of foreign-owned IP assets, and net factor income from aircraft leasing. GNI* is approximately 57% of GDP in 2024.",
+      "unit": "€bn total / €per capita",
+      "source": "cso-ana-2024"
+    },
+    "nuts3": {
+      "term": "NUTS3 Region",
+      "definition": "Nomenclature of Territorial Units for Statistics — Level 3. Ireland has 7 NUTS3 regions (formerly 8 before 2022 boundary revision): Dublin, Mid-East, South-West, South-East, West, Border, and Midlands. These are the standard EU statistical geography for regional analysis.",
+      "unit": "Geographic area",
+      "source": null
+    },
+    "disposableIncome": {
+      "term": "Disposable Income per Person",
+      "definition": "Household disposable income divided by population. Includes wages, transfers, and benefits minus taxes and social contributions. More reflective of actual living standards than GVA, which measures production rather than income received.",
+      "unit": "€ per person",
+      "source": "cso-disposable-income-2024"
+    },
+    "rentToIncome": {
+      "term": "Rent-to-Income Ratio",
+      "definition": "Annual rent as a percentage of annual disposable income. A ratio above 30% is generally considered cost-burdened. Dublin's ratio of 77% is extreme by EU standards.",
+      "unit": "%",
+      "source": "rtb-rent-q2-2024"
+    }
+  },
+  "caveats": [
+    "Ireland's national GDP is significantly inflated by multinational intellectual property transfers and aircraft leasing. GNI* is a better measure of domestic income.",
+    "Regional GVA figures prior to 2024 contain estimated trend values. The 2024 CSO figures are authoritative.",
+    "County-level GVA below NUTS3 level are CSO experimental estimates. Some counties suppressed for confidentiality.",
+    "Regional migration flows are modelled estimates, not directly measured at NUTS3 level.",
+    "NDP regional budget allocations are proxy estimates based on sectoral envelopes.",
+    "Population projections are CSO M2F2 scenario modelled estimates."
+  ],
+  "routes": [
+    { "path": "/", "label": "Overview", "description": "National KPIs and regional output summary" },
+    { "path": "/regional-output", "label": "Regional Output", "description": "GVA per person by NUTS3 region and county" },
+    { "path": "/household-income", "label": "Household Income", "description": "Disposable income, rent, and purchasing power" },
+    { "path": "/fiscal-picture", "label": "Fiscal Picture", "description": "Tax, spending, and national debt" },
+    { "path": "/renewable-energy", "label": "Renewable Energy", "description": "Wind capacity and grid constraints by county" },
+    { "path": "/population", "label": "Population", "description": "Projections and migration patterns to 2042" },
+    { "path": "/ireland-europe", "label": "Ireland & Europe", "description": "Irish regions vs EU countries in PPS" },
+    { "path": "/policy-investment", "label": "Policy & Investment", "description": "NDP allocations and regional investment gaps" },
+    { "path": "/methods-sources", "label": "Methods & Sources", "description": "Definitions, caveats, and data sources" },
+    { "path": "/regions/dublin", "label": "Dublin Region", "description": "Deep-dive profile: Dublin NUTS3 region" }
+  ]
+}

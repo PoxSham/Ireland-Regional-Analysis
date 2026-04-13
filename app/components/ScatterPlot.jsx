@@ -116,7 +116,7 @@ export default function ScatterPlot({ regions }) {
   // Build Irish region points using IRISH_PPS lookup
   const irishPoints = regions.map(r => {
     const ppsData = IRISH_PPS[r.id];
-    const pps = ppsData ? ppsData.pps : Math.round(r.gva[2024] * 0.816 / 100) * 100;
+    const pps = ppsData ? ppsData.pps : Math.round((r.gvaNominal2024 || 0) * 0.816 / 100) * 100;
     const estimated = ppsData ? ppsData.estimated : true;
     return { ...r, pps, estimated };
   });
@@ -232,7 +232,7 @@ export default function ScatterPlot({ regions }) {
             {/* Irish regions */}
             {irishPoints.map(r => {
               const cx = toX(r.pps);
-              const cy = toY(r.unemployment[2024]);
+              const cy = toY(r.unemployment2024);
               const isActive = active?.data?.id === r.id;
               return (
                 <g
@@ -295,7 +295,7 @@ export default function ScatterPlot({ regions }) {
                   <strong>{active.data.pps.toLocaleString()} PPS</strong>
                   {active.data.estimated && <span style={{ color: '#A8A69F' }}> (est.)</span>}
                 </span>
-                <span>Unemployment: <strong>{active.data.unemployment[2024]}%</strong></span>
+                <span>Unemployment: <strong>{active.data.unemployment2024}%</strong></span>
                 <span style={{ color: '#A8A69F', fontSize: 12 }}>
                   {active.data.estimated
                     ? 'PPS est. from CSO GVA 2024 × Ireland PPS ratio · Unemployment: CSO LFS 2024'
