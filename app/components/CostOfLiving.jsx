@@ -62,7 +62,7 @@ export default function CostOfLiving() {
         <div className="grid grid-cols-2 gap-6">
           {[
             { name: 'Dublin', disposable: 33889, rent: 2186, color: '#ef4444' },
-            { name: 'Donegal (NW)', disposable: 25000, rent: 1078, color: '#0891b2' },
+            { name: 'Border / Donegal', disposable: 25000, rent: 1185, color: '#0891b2' },
           ].map(r => {
             const monthly = Math.round(r.disposable / 12);
             const afterRent = monthly - r.rent;

@@ -23,6 +23,7 @@ export default function EuropeanComparison({ countries, averages }) {
   const irelandandUniqueCountries = countries.filter(c => c.category !== 'ireland');
 
   const irelandEntry = countries.find(c => c.category === 'ireland');
+  if (!irelandEntry) return <div className="text-red-400 p-4">Ireland data unavailable.</div>;
 
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
@@ -40,7 +41,7 @@ export default function EuropeanComparison({ countries, averages }) {
     <div className="space-y-8">
       {/* GVA Comparison Chart */}
       <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-6 backdrop-blur-sm">
-        <h3 className="text-xl font-bold mb-4">GDP per Capita (2024)</h3>
+        <h3 className="text-xl font-bold mb-4">GVA per Capita (2024)</h3>
         <ResponsiveContainer width="100%" height={350}>
           <BarChart
             data={countries}
@@ -105,9 +106,9 @@ export default function EuropeanComparison({ countries, averages }) {
 
         <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-6 backdrop-blur-sm">
           <div className="text-sm text-slate-400 mb-2">Highest: Luxembourg</div>
-          <div className="text-3xl font-bold text-blue-400">€95,000</div>
+          <div className="text-3xl font-bold text-blue-400">€{Math.max(...countries.filter(c=>c.category!=='ireland').map(c=>c.gvaPerCapita)).toLocaleString()}</div>
           <div className="text-xs text-slate-400 mt-2">
-            {((95000 / irelandEntry.gvaPerCapita - 1) * 100).toFixed(0)}% higher than Ireland
+            {((Math.max(...countries.filter(c=>c.category!=='ireland').map(c=>c.gvaPerCapita)) / irelandEntry.gvaPerCapita - 1) * 100).toFixed(0)}% higher than Ireland
           </div>
         </div>
 
