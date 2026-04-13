@@ -3,14 +3,13 @@
 import { useState, lazy, Suspense } from 'react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  LineChart, Line, Legend, Cell, ReferenceLine, RadarChart, Radar, PolarGrid,
-  PolarAngleAxis, PolarRadiusAxis,
+  LineChart, Line, Legend, Cell, ReferenceLine,
 } from 'recharts';
 import {
   irishRegions, europeanCountries, euAverages, irelandNational, countyData,
   macroIndicators, costOfLivingData, taxRevenue, govSpending, nationalDebt,
   renewableData, nationalWindStats, migrationData, fdiData,
-  populationProjections, infraWeights, investmentGapData,
+  populationProjections, investmentGapData,
 } from './data';
 import ScatterPlot from './components/ScatterPlot';
 
@@ -144,22 +143,6 @@ export default function Dashboard() {
     .concat([{ name: 'Ireland', gvaPerCapita: irelandNational.gvaPerCapita, category: 'ireland' }])
     .sort((a, b) => b.gvaPerCapita - a.gvaPerCapita);
 
-  // Infrastructure breakdown data for radar chart
-  const infraCategories = Object.keys(infraWeights);
-  const infraRadarData = infraCategories.map(k => ({
-    category: infraWeights[k].label,
-    Dublin: irishRegions.find(r => r.id === 'dublin').infraBreakdown[k],
-    Border: irishRegions.find(r => r.id === 'northwest').infraBreakdown[k],
-    Midlands: irishRegions.find(r => r.id === 'midlands').infraBreakdown[k],
-  }));
-
-  // Infrastructure grouped bar data
-  const infraBarData = irishRegions.map(r => {
-    const row = { name: r.shortName };
-    infraCategories.forEach(k => { row[infraWeights[k].label] = r.infraBreakdown[k]; });
-    return row;
-  });
-
   // Real purchasing power data
   const purchasingPowerData = [...costOfLivingData]
     .map(d => ({
@@ -195,7 +178,7 @@ export default function Dashboard() {
             <Logo />
             <span style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: 18, color: '#1A1916' }}>Irish Regional Economics</span>
           </div>
-          <div style={{ display: 'flex', gap: 2, overflow: 'auto', flex: 1 }}>
+          <div style={{ display: 'flex', gap: 2, overflowX: 'auto', flex: 1, scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
             {SECTIONS.map(s => (
               <button
                 key={s.id}
@@ -373,25 +356,44 @@ export default function Dashboard() {
               </ResponsiveContainer>
             </ChartPanel>
 
-            {/* Infrastructure Breakdown Radar */}
-            <ChartPanel
-              title="Infrastructure Score Breakdown: Dublin vs Border vs Midlands"
-              source="Source: EirGrid, CSO Housing, EPA, Comreg, Uisce Éireann"
-              whatThisMeans="Dublin scores well on broadband (95) and grid (85) but poorly on housing (40). The Border and Midlands regions score below 40 in most categories, reflecting decades of underinvestment. Grid capacity is the single biggest constraint for renewable energy deployment outside Dublin."
-            >
-              <ResponsiveContainer width="100%" height={340}>
-                <RadarChart data={infraRadarData} cx="50%" cy="50%" outerRadius="75%">
-                  <PolarGrid stroke={gridColor} />
-                  <PolarAngleAxis dataKey="category" tick={{ fontSize: 11, fill: axisColor }} />
-                  <PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fontSize: 10, fill: axisColor }} />
-                  <Radar name="Dublin" dataKey="Dublin" stroke={chartGreen} fill={chartGreen} fillOpacity={0.15} strokeWidth={2} />
-                  <Radar name="Border" dataKey="Border" stroke={chartGrey} fill={chartGrey} fillOpacity={0.1} strokeWidth={2} />
-                  <Radar name="Midlands" dataKey="Midlands" stroke="#E8A87C" fill="#E8A87C" fillOpacity={0.1} strokeWidth={2} />
-                  <Legend wrapperStyle={{ fontSize: 12, fontFamily: "'DM Sans', system-ui, sans-serif" }} />
-                  <Tooltip content={<ChartTooltip prefix="" suffix="/100" />} />
-                </RadarChart>
-              </ResponsiveContainer>
-            </ChartPanel>
+            {/* Infrastructure: Qualitative Regional Assessment */}
+            <div className="card" style={{ padding: '24px 28px' }}>
+              <h3 style={{ fontSize: 18, marginBottom: 4 }}>Infrastructure Constraints by Category</h3>
+              <p style={{ fontSize: 13, color: '#6B6860', marginBottom: 16, lineHeight: 1.6 }}>Based on published reports from EirGrid, Uisce Éireann, EPA, and ComReg. Constraint levels are qualitative assessments derived from agency commentary — not composite scores.</p>
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ fontSize: 13, width: '100%' }}>
+                  <thead>
+                    <tr style={{ borderBottom: '1px solid #E2DFD8', background: '#F9F8F4' }}>
+                      <th style={{ padding: '10px 16px', textAlign: 'left', color: '#6B6860' }}>Region</th>
+                      <th style={{ padding: '10px 16px', textAlign: 'left', color: '#6B6860' }}>Grid (EirGrid)</th>
+                      <th style={{ padding: '10px 16px', textAlign: 'left', color: '#6B6860' }}>Water (Uisce Éireann)</th>
+                      <th style={{ padding: '10px 16px', textAlign: 'left', color: '#6B6860' }}>Broadband (ComReg)</th>
+                      <th style={{ padding: '10px 16px', textAlign: 'left', color: '#6B6860' }}>Key Constraint</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[
+                      { name: 'Dublin', grid: 'Adequate', water: 'Adequate', broadband: 'High coverage', constraint: 'Housing capacity, transport saturation' },
+                      { name: 'South-West', grid: 'Constrained', water: 'Moderate', broadband: 'Good', constraint: 'Water supply, grid investment needed' },
+                      { name: 'Mid-East', grid: 'Constrained', water: 'Critical', broadband: 'Good', constraint: 'Water capacity critical, grid investment' },
+                      { name: 'South-East', grid: 'Constrained', water: 'Moderate', broadband: 'Moderate', constraint: 'Port infrastructure, grid capacity' },
+                      { name: 'West', grid: 'Severely constrained', water: 'Moderate', broadband: 'Below avg', constraint: 'Grid severely constrained, roads, broadband' },
+                      { name: 'Border', grid: 'Severely constrained', water: 'Poor', broadband: 'Below avg', constraint: 'Grid transmission, wastewater, peripherality' },
+                      { name: 'Midlands', grid: 'Constrained', water: 'Poor', broadband: 'Below avg', constraint: 'Manufacturing decline, grid access' },
+                    ].map((r, i) => (
+                      <tr key={i} style={{ borderBottom: '1px solid #EDEAE4' }}>
+                        <td style={{ padding: '10px 16px', fontWeight: 500 }}>{r.name}</td>
+                        <td style={{ padding: '10px 16px', color: r.grid.includes('Severely') ? '#DC2626' : r.grid === 'Constrained' ? '#D97706' : '#0D6B4F' }}>{r.grid}</td>
+                        <td style={{ padding: '10px 16px', color: r.water === 'Critical' || r.water === 'Poor' ? '#DC2626' : r.water === 'Moderate' ? '#D97706' : '#0D6B4F' }}>{r.water}</td>
+                        <td style={{ padding: '10px 16px', color: r.broadband.includes('Below') ? '#D97706' : '#0D6B4F' }}>{r.broadband}</td>
+                        <td style={{ padding: '10px 16px', color: '#6B6860', fontSize: 12 }}>{r.constraint}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <p className="source-note" style={{ marginTop: 12 }}>Sources: EirGrid Transmission Development Plan 2025–2034; Uisce Éireann Performance Report 2024; ComReg Quarterly Key Data Report Q3 2024; EPA Environmental Indicators 2024</p>
+            </div>
 
             {/* County table */}
             <div className="card" style={{ overflow: 'hidden' }}>
@@ -411,9 +413,14 @@ export default function Dashboard() {
                   <tbody>
                     {countyGvaData.map((c, i) => {
                       const diff = ((c.gva / irelandNational.gvaPerCapita - 1) * 100).toFixed(0);
+                      // Counties with CSO-suppressed data (confidentiality) — values are estimates
+                      const suppressed = ['Mayo', 'Roscommon', 'Donegal', 'Leitrim', 'Tipperary'];
+                      const isEstimated = suppressed.includes(c.name);
                       return (
                         <tr key={i} style={{ borderBottom: '1px solid #EDEAE4' }}>
-                          <td style={{ padding: '10px 20px', fontWeight: 500 }}>{c.name}</td>
+                          <td style={{ padding: '10px 20px', fontWeight: 500 }}>
+                            {c.name}{isEstimated && <span style={{ fontSize: 11, color: '#A8A69F', marginLeft: 4 }}>est.</span>}
+                          </td>
                           <td style={{ padding: '10px 20px', textAlign: 'right' }}>€{c.gva.toLocaleString()}</td>
                           <td style={{ padding: '10px 20px', textAlign: 'right', color: diff >= 0 ? '#0D6B4F' : '#A8A69F' }}>
                             {diff >= 0 ? '+' : ''}{diff}%
@@ -706,7 +713,7 @@ export default function Dashboard() {
 
             <ChartPanel
               title="Regional Population Projections, 2022–2042 (thousands)"
-              source="Source: CSO Regional Population Projections, January 2025"
+              source="Source: CSO Regional Population Projections M2F2 scenario, January 2025. National totals from CSO publication; per-NUTS3 regional splits are modelled from CSO NUTS3 population share trajectories."
               whatThisMeans="Dublin and the Mid-East are projected to grow steadily through to 2042, driven by migration and natural increase. The Border and Midlands face sustained decline as younger workers migrate eastward. Without policy intervention, the West will begin declining from 2027."
             >
               <ResponsiveContainer width="100%" height={340}>
@@ -756,19 +763,19 @@ export default function Dashboard() {
               </ResponsiveContainer>
             </ChartPanel>
 
-            {/* Brain drain table */}
+            {/* Net migration table */}
             <div className="card" style={{ overflow: 'hidden' }}>
               <div style={{ padding: '20px 28px 8px' }}>
-                <h3 style={{ fontSize: 18 }}>Brain Drain Risk and Young Worker Retention</h3>
+                <h3 style={{ fontSize: 18 }}>Net Migration by Region, 2024</h3>
+                <p style={{ fontSize: 13, color: '#A8A69F', marginTop: 4 }}>Regional net flow figures are modelled estimates based on the CSO national total (net +80,200). CSO does not publish per-NUTS3 net migration directly.</p>
               </div>
               <div style={{ overflowX: 'auto' }}>
                 <table style={{ fontSize: 13 }}>
                   <thead>
                     <tr style={{ borderBottom: '1px solid #E2DFD8', background: '#F9F8F4' }}>
                       <th style={{ padding: '10px 20px', textAlign: 'left', color: '#6B6860' }}>Region</th>
-                      <th style={{ padding: '10px 20px', textAlign: 'right', color: '#6B6860' }}>Net Flow</th>
-                      <th style={{ padding: '10px 20px', textAlign: 'center', color: '#6B6860' }}>Brain Drain Risk</th>
-                      <th style={{ padding: '10px 20px', textAlign: 'right', color: '#6B6860' }}>Young Worker Retention</th>
+                      <th style={{ padding: '10px 20px', textAlign: 'right', color: '#6B6860' }}>Est. Net Flow</th>
+                      <th style={{ padding: '10px 20px', textAlign: 'center', color: '#6B6860' }}>Pop Share Change</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -776,18 +783,17 @@ export default function Dashboard() {
                       <tr key={i} style={{ borderBottom: '1px solid #EDEAE4' }}>
                         <td style={{ padding: '10px 20px', fontWeight: 500 }}>{r.name}</td>
                         <td style={{ padding: '10px 20px', textAlign: 'right', color: r.netFlow >= 0 ? '#0D6B4F' : '#D97706' }}>
-                          {r.netFlow >= 0 ? '+' : ''}{r.netFlow.toLocaleString()}
+                          {r.netFlow >= 0 ? '+' : ''}{r.netFlow.toLocaleString()} <span style={{ fontSize: 11, color: '#A8A69F' }}>est.</span>
                         </td>
-                        <td style={{ padding: '10px 20px', textAlign: 'center', color: r.brainDrainRisk.includes('Very') ? '#DC2626' : r.brainDrainRisk === 'High' ? '#D97706' : axisColor }}>
-                          {r.brainDrainRisk}
+                        <td style={{ padding: '10px 20px', textAlign: 'center', color: r.popShareChange.startsWith('-') ? '#D97706' : '#0D6B4F' }}>
+                          {r.popShareChange}
                         </td>
-                        <td style={{ padding: '10px 20px', textAlign: 'right' }}>{r.youngWorkerRetention}%</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
-              <p className="source-note" style={{ padding: '12px 28px' }}>Source: CSO Population & Migration Estimates 2024</p>
+              <p className="source-note" style={{ padding: '12px 28px' }}>Source: CSO Population and Migration Estimates April 2025 (national total). Regional splits modelled from CSO NUTS3 population shares and commentary.</p>
             </div>
           </div>
         )}
@@ -807,8 +813,8 @@ export default function Dashboard() {
 
             {/* Scatter plot first */}
             <ChartPanel
-              title="Infrastructure Score vs GVA per Capita: Irish Regions vs EU Countries"
-              source="Source: CSO 2024; Eurostat; WEF Global Competitiveness Index 2023-24"
+              title="GVA per Capita: Irish Regions vs EU Countries"
+              source="Source: CSO County Incomes and GDP 2024; Eurostat National Accounts 2022–2023 (approximated). EU country figures are rounded estimates — for precise PPS comparisons see ec.europa.eu/eurostat."
             >
               <ScatterPlot
                 regions={irishRegions}
@@ -845,7 +851,7 @@ export default function Dashboard() {
         {/* ════════════════ SECTION 8: POLICY & INVESTMENT ════════════════ */}
         {activeSection === 'policy' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
-            <SectionTitle finding="NDP investment per capita varies from €17,606 in Dublin to €4,286 in the Midlands. Five of seven regions are rated 'Under-funded' relative to their population share. Closing the regional gap requires targeted investment in grid infrastructure, housing, water systems, and transport connectivity.">
+            <SectionTitle finding="NDP investment per capita is estimated at €17,606 in Dublin compared to €4,286 in the Midlands. Five of seven regions receive below-proportional investment relative to population. Budget figures are derived from NDP 2021–2030 published allocations and Budget 2025; per-NUTS3 breakdowns are modelled estimates, not official government regional tables.">
               Policy, Investment, and the Regional Gap
             </SectionTitle>
 
@@ -945,7 +951,7 @@ export default function Dashboard() {
                   </tbody>
                 </table>
               </div>
-              <p className="source-note" style={{ padding: '12px 28px' }}>Source: NDP 2021-2030; Budget 2025; CSO Census 2022</p>
+              <p className="source-note" style={{ padding: '12px 28px' }}>Source: NDP 2021–2030 published allocations; Budget 2025; CSO Census 2022. Per-NUTS3 budget figures are modelled estimates — the government does not publish a single official per-NUTS3 capital allocation table.</p>
             </div>
           </div>
         )}

@@ -27,24 +27,24 @@ export default function ScatterPlot({ regions, euCountries, onSelectRegion, sele
   const plotH = h - PADDING.top - PADDING.bottom;
 
   const xMin = 15000, xMax = 195000;
-  const yMin = 15, yMax = 100;
+  const yMin = 0, yMax = 13;
 
   const toX = v => lerp(v, xMin, xMax, 0, plotW);
   const toY = v => lerp(v, yMin, yMax, plotH, 0);
 
   // Quadrant lines
   const midX = toX(60000);
-  const midY = toY(62);
+  const midY = toY(5.5);
 
   const quadrants = [
-    { x: 2, y: 2,         label: 'Poor & Under-Served',     color: '#ef4444', align: 'start' },
-    { x: midX + 8, y: 2,  label: 'Rich but Under-Built',    color: '#f97316', align: 'start' },
-    { x: 2, y: midY + 14, label: 'Poor but Well-Served',    color: '#10b981', align: 'start' },
-    { x: midX + 8, y: midY + 14, label: 'Rich & Well-Built', color: '#3b82f6', align: 'start' },
+    { x: 2, y: 2,         label: 'Low Output, High Unemployment',  color: '#ef4444' },
+    { x: midX + 8, y: 2,  label: 'High Output, High Unemployment', color: '#f97316' },
+    { x: 2, y: midY + 14, label: 'Low Output, Low Unemployment',   color: '#10b981' },
+    { x: midX + 8, y: midY + 14, label: 'High Output, Low Unemployment', color: '#3b82f6' },
   ];
 
   const xTicks = [20000, 40000, 60000, 80000, 100000, 130000, 160000, 190000];
-  const yTicks = [20, 30, 40, 50, 60, 70, 80, 90, 100];
+  const yTicks = [2, 4, 6, 8, 10, 12];
 
   return (
     <div className="w-full select-none">
@@ -102,14 +102,14 @@ export default function ScatterPlot({ regions, euCountries, onSelectRegion, sele
             </g>
           ))}
           <text transform={`translate(-52,${plotH / 2}) rotate(-90)`} textAnchor="middle" fill="#6B6860" fontSize={12} fontWeight={600}>
-            Infrastructure Score (0–100)
+            Unemployment Rate (%)
           </text>
 
           {/* EU Countries (muted, background) */}
           <g clipPath="url(#plot-clip)">
             {euCountries.map((c) => {
               const cx = toX(c.gvaPerCapita);
-              const cy = toY(c.infraScore);
+              const cy = toY(c.unemployment);
               return (
                 <g
                   key={c.name}
@@ -127,7 +127,7 @@ export default function ScatterPlot({ regions, euCountries, onSelectRegion, sele
             })}
 
             {/* EU Average marker */}
-            <g transform={`translate(${toX(42500)},${toY(72)})`}>
+            <g transform={`translate(${toX(42500)},${toY(5.8)})`}>
               <circle r={9} fill="none" stroke="#A8A69F" strokeWidth={2} strokeDasharray="4 2" />
               <text y={-12} textAnchor="middle" fill="#6B6860" fontSize={10} fontWeight={600}>EU Avg</text>
             </g>
@@ -135,7 +135,7 @@ export default function ScatterPlot({ regions, euCountries, onSelectRegion, sele
             {/* Irish Regions (bold, foreground) */}
             {regions.map((r) => {
               const cx = toX(r.gva[2024]);
-              const cy = toY(r.infraScore);
+              const cy = toY(r.unemployment[2024]);
               const isSelected = r.id === selectedId;
               return (
                 <g
@@ -146,7 +146,7 @@ export default function ScatterPlot({ regions, euCountries, onSelectRegion, sele
                   onMouseEnter={() => setTooltip({ x: cx + PADDING.left, y: cy + PADDING.top, data: r, type: 'irish' })}
                   onMouseLeave={() => setTooltip(null)}
                   role="button"
-                  aria-label={`${r.name}: GVA €${r.gva[2024].toLocaleString()}, Infrastructure ${r.infraScore}`}
+                  aria-label={`${r.name}: GVA €${r.gva[2024].toLocaleString()}, Unemployment ${r.unemployment[2024]}%`}
                   tabIndex={0}
                 >
                   {isSelected && (
@@ -183,7 +183,7 @@ export default function ScatterPlot({ regions, euCountries, onSelectRegion, sele
             <rect
               x={0} y={0}
               width={tooltip.type === 'irish' ? 200 : 180}
-              height={tooltip.type === 'irish' ? 80 : 70}
+              height={tooltip.type === 'irish' ? 66 : 66}
               rx={8}
               fill="white"
               stroke="#E2DFD8"
@@ -194,15 +194,13 @@ export default function ScatterPlot({ regions, euCountries, onSelectRegion, sele
               <>
                 <text x={10} y={22} fill="#1A1916" fontSize={12} fontWeight={700}>{tooltip.data.shortName}</text>
                 <text x={10} y={40} fill="#6B6860" fontSize={11}>GVA: €{tooltip.data.gva[2024].toLocaleString()}</text>
-                <text x={10} y={56} fill="#6B6860" fontSize={11}>Infrastructure: {tooltip.data.infraScore}/100</text>
-                <text x={10} y={72} fill="#6B6860" fontSize={11}>Unemployment: {tooltip.data.unemployment[2024]}%</text>
+                <text x={10} y={56} fill="#6B6860" fontSize={11}>Unemployment: {tooltip.data.unemployment[2024]}%</text>
               </>
             ) : (
               <>
                 <text x={10} y={22} fill="#1A1916" fontSize={12} fontWeight={700}>{tooltip.data.name}</text>
                 <text x={10} y={40} fill="#6B6860" fontSize={11}>GDP: €{tooltip.data.gvaPerCapita.toLocaleString()}</text>
-                <text x={10} y={56} fill="#6B6860" fontSize={11}>Infrastructure: {tooltip.data.infraScore}/100</text>
-                <text x={10} y={70} fill="#A8A69F" fontSize={10}>Unemployment: {tooltip.data.unemployment}%</text>
+                <text x={10} y={56} fill="#6B6860" fontSize={11}>Unemployment: {tooltip.data.unemployment}%</text>
               </>
             )}
           </g>
