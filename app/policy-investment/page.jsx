@@ -12,10 +12,10 @@ import {
   Cell,
 } from 'recharts';
 
-import PageHero from '../../components/ui/PageHero';
-import ChartCard from '../../components/ui/ChartCard';
-import Callout from '../../components/ui/Callout';
-import regionsData from '../../data/regions.json';
+import PageHero from '../components/ui/PageHero';
+import ChartCard from '../components/ui/ChartCard';
+import Callout from '../components/ui/Callout';
+import regionsData from '../data/regions.json';
 
 const chartGreen = '#0D6B4F';
 const chartGreenLight = '#8BAF9E';
