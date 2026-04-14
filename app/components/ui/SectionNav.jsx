@@ -2,190 +2,173 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useState } from 'react';
 
-// Routes and their display labels
 const NAV_ITEMS = [
-  { href: '/', label: 'Overview' },
-  { href: '/regional-output', label: 'Regional Output' },
-  { href: '/household-income', label: 'Household Income' },
-  { href: '/fiscal-picture', label: 'Fiscal Picture' },
-  { href: '/renewable-energy', label: 'Renewable Energy' },
-  { href: '/population', label: 'Population' },
-  { href: '/ireland-europe', label: 'Ireland & Europe' },
-  { href: '/policy-investment', label: 'Policy & Investment' },
-  { href: '/methods-sources', label: 'Methods & Sources' },
+  { href: '/', label: 'Home' },
+  { href: '/ireland-on-paper', label: 'Ireland on Paper' },
+  { href: '/taxes-and-spending', label: 'Taxes & Spending' },
+  { href: '/ireland-europe', label: 'Ireland vs EU' },
+  { href: '/regions', label: 'Regions' },
+  { href: '/households', label: 'Households' },
+  { href: '/methods-sources', label: 'Methods' },
 ];
 
-// Harp SVG mark (simplified geometric harp)
+// Subtle geometric harp mark
 function HarpMark() {
   return (
-    <svg
-      width="22"
-      height="26"
-      viewBox="0 0 22 26"
-      fill="none"
-      aria-label="Irish harp mark"
-      xmlns="http://www.w3.org/2000/svg"
-      style={{ flexShrink: 0 }}
-    >
-      {/* Pillar */}
-      <rect x="2" y="2" width="3" height="22" rx="1.5" fill="#0D6B4F" />
-      {/* Neck / curved top */}
-      <path
-        d="M5 3 Q18 1 19 14"
-        stroke="#0D6B4F"
-        strokeWidth="2.5"
-        strokeLinecap="round"
-        fill="none"
-      />
-      {/* Strings */}
-      {[0, 1, 2, 3, 4, 5].map((i) => {
-        const x = 7 + i * 2;
-        const topY = 4 + i * 1.2;
-        const bottomY = 22 - i * 0.5;
-        return (
-          <line
-            key={i}
-            x1={x}
-            y1={topY}
-            x2="5"
-            y2={bottomY}
-            stroke="#0D6B4F"
-            strokeWidth="1.2"
-            strokeLinecap="round"
-            opacity={1 - i * 0.08}
-          />
-        );
-      })}
-      {/* Base */}
-      <rect x="2" y="22" width="17" height="2.5" rx="1.25" fill="#0D6B4F" />
+    <svg width="20" height="24" viewBox="0 0 20 24" fill="none" aria-hidden="true">
+      <rect x="1.5" y="2" width="2.5" height="19" rx="1.25" fill="#0D6B4F" />
+      <path d="M4 3 Q16 1.5 17 13" stroke="#0D6B4F" strokeWidth="2.2" strokeLinecap="round" fill="none" />
+      {[0,1,2,3,4,5].map(i => (
+        <line key={i}
+          x1={6 + i*1.8} y1={4 + i*1.1}
+          x2="4" y2={19 - i*0.4}
+          stroke="#0D6B4F" strokeWidth="1.1"
+          strokeLinecap="round" opacity={0.95 - i*0.08}
+        />
+      ))}
+      <rect x="1.5" y="20" width="15" height="2" rx="1" fill="#0D6B4F" />
     </svg>
   );
 }
 
-export default function SectionNav({ currentPath }) {
+// Hamburger icon
+function MenuIcon({ open }) {
+  return (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+      {open ? (
+        <>
+          <line x1="4" y1="4" x2="16" y2="16" stroke="#1A1916" strokeWidth="1.8" strokeLinecap="round"/>
+          <line x1="16" y1="4" x2="4" y2="16" stroke="#1A1916" strokeWidth="1.8" strokeLinecap="round"/>
+        </>
+      ) : (
+        <>
+          <line x1="3" y1="6" x2="17" y2="6" stroke="#1A1916" strokeWidth="1.8" strokeLinecap="round"/>
+          <line x1="3" y1="10" x2="17" y2="10" stroke="#1A1916" strokeWidth="1.8" strokeLinecap="round"/>
+          <line x1="3" y1="14" x2="17" y2="14" stroke="#1A1916" strokeWidth="1.8" strokeLinecap="round"/>
+        </>
+      )}
+    </svg>
+  );
+}
+
+export default function SectionNav() {
   const pathname = usePathname();
-  const activePath = currentPath ?? pathname;
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  const isActive = (href) => {
+    if (href === '/') return pathname === '/';
+    return pathname === href || pathname?.startsWith(href + '/');
+  };
 
   return (
     <>
-      {/* Inject minimal global CSS for scrollbar hiding and fade */}
       <style>{`
-        .section-nav-tabs {
-          overflow-x: auto;
-          -ms-overflow-style: none;
-          scrollbar-width: none;
+        .nav-tabs { overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; }
+        .nav-tabs::-webkit-scrollbar { display: none; }
+        .nav-tab { transition: color 0.15s ease; }
+        .nav-tab:hover { color: #0D6B4F !important; }
+        .mobile-menu a:hover { background: #F5F4F0 !important; }
+        @media (max-width: 768px) {
+          .desktop-nav { display: none !important; }
+          .mobile-toggle { display: flex !important; }
         }
-        .section-nav-tabs::-webkit-scrollbar {
-          display: none;
-        }
-        .section-nav-tab-link {
-          transition: color 0.15s ease;
-        }
-        .section-nav-tab-link:hover {
-          color: #0D6B4F !important;
+        @media (min-width: 769px) {
+          .mobile-toggle { display: none !important; }
+          .mobile-menu { display: none !important; }
         }
       `}</style>
 
-      <header
-        style={{
-          position: 'sticky',
-          top: 0,
-          zIndex: 100,
-          background: 'white',
-          boxShadow: '0 1px 0 #EDEAE4',
-        }}
-      >
-        {/* Logo row */}
-        <div
-          style={{
-            height: '52px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-            padding: '0 24px',
-            borderBottom: '1px solid #EDEAE4',
-          }}
-        >
-          <HarpMark />
-          <span
-            style={{
+      <header style={{
+        position: 'sticky', top: 0, zIndex: 100,
+        background: 'white', boxShadow: '0 1px 0 #EDEAE4',
+      }}>
+        {/* Main header row */}
+        <div style={{
+          maxWidth: 1100, margin: '0 auto',
+          height: 52, display: 'flex', alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '0 24px', gap: 16,
+        }}>
+          {/* Logo */}
+          <Link href="/" style={{
+            display: 'flex', alignItems: 'center', gap: 9,
+            textDecoration: 'none', flexShrink: 0,
+          }}>
+            <HarpMark />
+            <span style={{
               fontFamily: "'DM Serif Display', serif",
-              fontSize: '17px',
-              fontWeight: 400,
-              color: '#1A1916',
-              letterSpacing: '-0.01em',
+              fontSize: 16, fontWeight: 400,
+              color: '#1A1916', letterSpacing: '-0.01em',
               lineHeight: 1,
-            }}
-          >
-            Irish Regional Economics
-          </span>
-        </div>
+            }}>
+              Irish Data Platform
+            </span>
+          </Link>
 
-        {/* Tab bar row */}
-        <div style={{ position: 'relative' }}>
-          {/* Right-edge scroll fade hint */}
-          <div
-            aria-hidden="true"
-            style={{
-              position: 'absolute',
-              right: 0,
-              top: 0,
-              bottom: 0,
-              width: '48px',
-              background:
-                'linear-gradient(to left, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%)',
-              pointerEvents: 'none',
-              zIndex: 2,
-            }}
-          />
-
-          <nav
-            className="section-nav-tabs"
-            aria-label="Section navigation"
-            style={{
-              height: '44px',
-              display: 'flex',
-              alignItems: 'stretch',
-              padding: '0 16px',
-              borderBottom: '1px solid #EDEAE4',
-              gap: '0',
-            }}
-          >
-            {NAV_ITEMS.map(({ href, label }) => {
-              const isActive =
-                href === '/'
-                  ? activePath === '/'
-                  : activePath === href || activePath?.startsWith(href + '/');
-
-              return (
-                <Link
-                  key={href}
-                  href={href}
-                  className="section-nav-tab-link"
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    padding: '0 14px',
-                    fontFamily: "'DM Sans', sans-serif",
-                    fontSize: '13.5px',
-                    fontWeight: isActive ? 600 : 400,
-                    color: isActive ? '#0D6B4F' : '#6B6860',
-                    textDecoration: 'none',
-                    whiteSpace: 'nowrap',
-                    borderBottom: isActive
-                      ? '2px solid #0D6B4F'
-                      : '2px solid transparent',
-                    marginBottom: '-1px',
-                    flexShrink: 0,
-                  }}
-                >
-                  {label}
-                </Link>
-              );
-            })}
+          {/* Desktop nav tabs */}
+          <nav className="desktop-nav nav-tabs" aria-label="Site navigation" style={{
+            display: 'flex', alignItems: 'stretch',
+            height: '100%', gap: 0, flex: 1,
+            justifyContent: 'flex-end',
+          }}>
+            {NAV_ITEMS.map(({ href, label }) => (
+              <Link key={href} href={href} className="nav-tab"
+                style={{
+                  display: 'inline-flex', alignItems: 'center',
+                  padding: '0 13px',
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: '13px', fontWeight: isActive(href) ? 600 : 400,
+                  color: isActive(href) ? '#0D6B4F' : '#6B6860',
+                  textDecoration: 'none', whiteSpace: 'nowrap',
+                  borderBottom: isActive(href) ? '2px solid #0D6B4F' : '2px solid transparent',
+                  marginBottom: '-1px',
+                }}
+              >
+                {label}
+              </Link>
+            ))}
           </nav>
+
+          {/* Mobile toggle */}
+          <button
+            className="mobile-toggle"
+            aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={mobileOpen}
+            onClick={() => setMobileOpen(o => !o)}
+            style={{
+              background: 'none', border: 'none', cursor: 'pointer',
+              padding: '6px', display: 'none', alignItems: 'center',
+            }}
+          >
+            <MenuIcon open={mobileOpen} />
+          </button>
         </div>
+
+        {/* Mobile dropdown */}
+        {mobileOpen && (
+          <nav className="mobile-menu" style={{
+            background: 'white', borderTop: '1px solid #EDEAE4',
+            padding: '8px 0', display: 'flex', flexDirection: 'column',
+          }}>
+            {NAV_ITEMS.map(({ href, label }) => (
+              <Link key={href} href={href}
+                onClick={() => setMobileOpen(false)}
+                style={{
+                  display: 'block', padding: '12px 24px',
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: 15, fontWeight: isActive(href) ? 600 : 400,
+                  color: isActive(href) ? '#0D6B4F' : '#1A1916',
+                  textDecoration: 'none',
+                  background: isActive(href) ? '#EEF6F2' : 'transparent',
+                }}
+              >
+                {label}
+              </Link>
+            ))}
+          </nav>
+        )}
       </header>
     </>
   );

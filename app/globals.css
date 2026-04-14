@@ -2,88 +2,239 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ── Irish Editorial Design System ────────────────────────── */
+/* ── Irish Data Platform — Design System ──────────────────── */
 :root {
-  --color-bg: #F5F4F0;
-  --color-surface: #FFFFFF;
-  --color-surface-2: #F9F8F4;
-  --color-border: #E2DFD8;
-  --color-divider: #EDEAE4;
-  --color-text: #1A1916;
-  --color-text-muted: #6B6860;
-  --color-text-faint: #A8A69F;
-  --color-primary: #0D6B4F;
-  --color-primary-light: #E8F4EF;
-  --color-accent-bar: #0D6B4F;
-  --color-accent-secondary: #8BAF9E;
-  --color-grid: #F0EDE8;
+  /* Backgrounds */
+  --color-bg:          #F5F4F0;
+  --color-surface:     #FFFFFF;
+  --color-surface-2:   #F9F8F4;
+  --color-surface-3:   #F2F1EC;
+
+  /* Borders & dividers */
+  --color-border:      #E2DFD8;
+  --color-divider:     #EDEAE4;
+  --color-grid:        #F0EDE8;
+
+  /* Text hierarchy */
+  --color-text:        #1A1916;
+  --color-text-secondary: #4A4740;
+  --color-text-muted:  #6B6860;
+  --color-text-faint:  #A8A69F;
+  --color-text-ghost:  #C5BFB8;
+
+  /* Brand */
+  --color-primary:        #0D6B4F;
+  --color-primary-dark:   #0A5440;
+  --color-primary-mid:    #4A8E76;
+  --color-primary-light:  #E8F4EF;
+  --color-primary-pale:   #EEF6F2;
+  --color-primary-border: #B8DCCC;
+
+  /* Accent */
+  --color-accent-bar:  #0D6B4F;
+  --color-accent-secondary: #7FA896;
+  --color-accent-stone: #B5A899;
+
+  /* Status */
+  --color-warning-bg:    #FEF9EC;
+  --color-warning-border: #F5D06A;
+  --color-warning-text:  #7A5C00;
+  --color-info-bg:       #F0F7FF;
+  --color-info-border:   #C0DCF8;
+  --color-info-text:     #1A4A6E;
+
+  /* Chart palette — editorial, not traffic-light */
+  --chart-1: #0D6B4F;
+  --chart-2: #7FA896;
+  --chart-3: #4A90A4;
+  --chart-4: #B5A899;
+  --chart-5: #C5CCC9;
+  --chart-highlight: #0D6B4F;
+  --chart-muted: #C5CCC9;
+  --chart-bg: #FFFFFF;
+
+  /* Spacing scale */
+  --space-xs:  4px;
+  --space-sm:  8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 40px;
+  --space-2xl: 64px;
+
+  /* Typography scale */
+  --text-xs:   11px;
+  --text-sm:   12px;
+  --text-base: 15px;
+  --text-md:   16px;
+  --text-lg:   18px;
+  --text-xl:   22px;
+  --text-2xl:  28px;
+  --text-3xl:  36px;
+  --text-4xl:  48px;
+
+  /* Radius */
+  --radius-sm:  6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+
+  /* Shadows */
+  --shadow-card: 0 1px 4px rgba(0,0,0,0.05), 0 0 0 1px rgba(0,0,0,0.04);
+  --shadow-hover: 0 4px 16px rgba(0,0,0,0.08);
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
-html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+/* ── Reset ────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
+/* ── Base ─────────────────────────────────────────────────── */
 body {
   background-color: var(--color-bg);
   color: var(--color-text);
   font-family: 'DM Sans', system-ui, sans-serif;
-  font-size: 15px;
-  line-height: 1.6;
+  font-size: var(--text-base);
+  line-height: 1.65;
 }
 
-h1, h2, h3 {
+h1, h2, h3, h4 {
   font-family: 'DM Serif Display', Georgia, serif;
   font-weight: 400;
   line-height: 1.2;
   color: var(--color-text);
+  letter-spacing: -0.01em;
 }
 
-/* Card */
+h1 { font-size: var(--text-3xl); }
+h2 { font-size: var(--text-xl); }
+h3 { font-size: var(--text-lg); }
+h4 { font-size: var(--text-base); font-family: 'DM Sans', sans-serif; font-weight: 600; }
+
+p { line-height: 1.7; color: var(--color-text-secondary); }
+
+a { color: var(--color-primary); text-decoration: none; }
+a:hover { text-decoration: underline; text-underline-offset: 2px; }
+
+/* ── Prose editorial text ─────────────────────────────────── */
+.prose {
+  max-width: 680px;
+  font-size: var(--text-md);
+  line-height: 1.75;
+  color: var(--color-text-secondary);
+}
+.prose p + p { margin-top: 1em; }
+.prose strong { color: var(--color-text); font-weight: 600; }
+
+/* ── Cards ────────────────────────────────────────────────── */
 .card {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: 12px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
 }
 
-/* Source note */
+.card-hover {
+  transition: box-shadow 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+}
+.card-hover:hover {
+  box-shadow: var(--shadow-hover);
+  border-color: var(--color-primary-border);
+  transform: translateY(-1px);
+}
+
+/* ── Source notes ─────────────────────────────────────────── */
 .source-note {
-  font-size: 11px;
+  font-size: var(--text-xs);
   color: var(--color-text-faint);
-  margin-top: 12px;
+  line-height: 1.5;
 }
 
-/* Scrollbar */
-::-webkit-scrollbar { width: 7px; height: 7px; }
-::-webkit-scrollbar-track { background: var(--color-bg); }
-::-webkit-scrollbar-thumb { background: #C5CCC9; border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: var(--color-accent-secondary); }
+/* ── Section label / badge ────────────────────────────────── */
+.section-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  background: var(--color-primary-pale);
+  border: 1px solid var(--color-primary-border);
+  border-radius: 999px;
+  font-size: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #0D4A36;
+}
 
-::selection { background-color: var(--color-primary-light); color: var(--color-text); }
+/* ── Divider ──────────────────────────────────────────────── */
+.divider {
+  height: 1px;
+  background: var(--color-divider);
+  border: none;
+  margin: 0;
+}
 
-/* Recharts overrides */
+/* ── Recharts overrides ───────────────────────────────────── */
 .recharts-cartesian-grid-horizontal line,
 .recharts-cartesian-grid-vertical line {
   stroke: var(--color-grid) !important;
   stroke-dasharray: none;
 }
 .recharts-tooltip-wrapper { z-index: 50; }
+.recharts-surface { overflow: visible; }
 
-/* Table base */
-table { width: 100%; border-collapse: collapse; }
-th { font-weight: 600; font-family: 'DM Sans', system-ui, sans-serif; }
-
-/* Transitions */
-button, input, select { transition: all 180ms ease; }
-
-/* Pulse animation for scatter plot */
-@keyframes pulse-ring {
-  0%   { r: 18; opacity: 0.8; }
-  50%  { r: 24; opacity: 0.3; }
-  100% { r: 18; opacity: 0.8; }
+/* Chart container always white background */
+.chart-bg {
+  background: #FFFFFF;
+  border-radius: var(--radius-md);
 }
 
-/* Mobile */
+/* ── Tables ───────────────────────────────────────────────── */
+table { width: 100%; border-collapse: collapse; }
+th {
+  font-weight: 600;
+  font-family: 'DM Sans', sans-serif;
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+  padding: 10px 14px;
+  border-bottom: 2px solid var(--color-border);
+  text-align: left;
+}
+td {
+  padding: 10px 14px;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  border-bottom: 1px solid var(--color-divider);
+}
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--color-surface-2); }
+
+/* ── Scrollbar ────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--color-bg); }
+::-webkit-scrollbar-thumb { background: #C5BFB8; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-accent-secondary); }
+
+/* ── Selection ────────────────────────────────────────────── */
+::selection { background-color: var(--color-primary-light); color: var(--color-text); }
+
+/* ── Animation ────────────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-in { animation: fadeIn 0.4s ease both; }
+
+/* ── Transitions ──────────────────────────────────────────── */
+button, input, select, a { transition: all 160ms ease; }
+
+/* ── Mobile ───────────────────────────────────────────────── */
 @media (max-width: 768px) {
+  h1 { font-size: 26px; }
+  h2 { font-size: 18px; }
   body { font-size: 14px; }
-  th, td { padding: 0.5rem 0.75rem; font-size: 12px; }
+  th, td { padding: 8px 10px; font-size: 11px; }
+  .prose { font-size: 15px; }
 }
