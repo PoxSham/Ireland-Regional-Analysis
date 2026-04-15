@@ -1,7 +1,7 @@
 {
-  "name": "ireland-regional-analysis",
-  "version": "1.0.0",
-  "description": "Interactive dashboard analyzing Irish regional economics with European comparisons",
+  "name": "ireland-civic-data-project",
+  "version": "2.0.0",
+  "description": "Ireland Civic Data Project — public-interest editorial site covering Irish public spending, taxes, lobbying, healthcare, procurement, regions, and Ireland vs EU comparisons",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
