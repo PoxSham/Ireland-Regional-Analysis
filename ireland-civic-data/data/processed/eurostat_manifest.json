@@ -1,0 +1,37 @@
+{
+  "run_at": "2026-04-15T16:09:03.845Z",
+  "source": "Eurostat",
+  "note": "hlth_sha11 top-level removed (HTTP 404 — not available for dissemination). Replaced with hlth_sha11_hf and hlth_sha11_hc sub-tables.",
+  "results": [
+    {
+      "code": "prc_ppp_ind",
+      "status": "ok",
+      "values": 1401572
+    },
+    {
+      "code": "ilc_di03",
+      "status": "ok",
+      "values": 325464
+    },
+    {
+      "code": "ilc_li02",
+      "status": "ok",
+      "values": 1097022
+    },
+    {
+      "code": "hlth_sha11_hf",
+      "status": "ok",
+      "values": 36566
+    },
+    {
+      "code": "hlth_sha11_hc",
+      "status": "ok",
+      "values": 113158
+    },
+    {
+      "code": "nama_10r_3gdp",
+      "status": "ok",
+      "values": 1344
+    }
+  ]
+}

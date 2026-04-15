@@ -1,0 +1,45 @@
+{
+  "run_at": "2026-04-15T16:13:06.660Z",
+  "source": "OGP Procurement (data.gov.ie / eTenders)",
+  "datasets": [
+    {
+      "id": "ogp_awards",
+      "label": "Mini-Competition & Standalone Awards 2023–2024",
+      "status": "ok",
+      "total_rows": 2362,
+      "quarterly_breakdown": [
+        {
+          "id": "2023_q1q4",
+          "status": "ok",
+          "rows": 1162
+        },
+        {
+          "id": "2024_q1",
+          "status": "ok",
+          "rows": 212
+        },
+        {
+          "id": "2024_q2",
+          "status": "ok",
+          "rows": 238
+        },
+        {
+          "id": "2024_q3",
+          "status": "ok",
+          "rows": 399
+        },
+        {
+          "id": "2024_q4",
+          "status": "ok",
+          "rows": 351
+        }
+      ]
+    },
+    {
+      "id": "ogp_etenders",
+      "label": "eTenders Bulk Dataset",
+      "status": "ok",
+      "rows": 100106
+    }
+  ]
+}

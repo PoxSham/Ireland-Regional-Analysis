@@ -1,0 +1,563 @@
+{
+  "generated_at": "2026-04-15T16:14:23.083Z",
+  "etl_runs": [],
+  "qa": [
+    {
+      "file": "cso_cirgdp01.json",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "row_count",
+          "severity": "ok",
+          "message": "1890 rows"
+        },
+        {
+          "check": "null_rate",
+          "severity": "ok",
+          "message": "Null rate 24.4%"
+        },
+        {
+          "check": "outlier",
+          "severity": "ok",
+          "message": "Value range: 2.37 – 562794.21 (p1=7.35, p99=358665.23)"
+        },
+        {
+          "check": "meta_fields",
+          "severity": "ok",
+          "message": "All required meta fields present"
+        }
+      ],
+      "row_count": 1890,
+      "null_rate_pct": 24.4
+    },
+    {
+      "file": "cso_cirgdp03.json",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "row_count",
+          "severity": "ok",
+          "message": "1400 rows"
+        },
+        {
+          "check": "null_rate",
+          "severity": "ok",
+          "message": "Null rate 0.0%"
+        },
+        {
+          "check": "outlier",
+          "severity": "ok",
+          "message": "Value range: 43.07105824 – 562794.2086 (p1=61.60732806, p99=363752.6271)"
+        },
+        {
+          "check": "meta_fields",
+          "severity": "ok",
+          "message": "All required meta fields present"
+        }
+      ],
+      "row_count": 1400,
+      "null_rate_pct": 0
+    },
+    {
+      "file": "cso_gfa01.json",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "row_count",
+          "severity": "ok",
+          "message": "870 rows"
+        },
+        {
+          "check": "null_rate",
+          "severity": "ok",
+          "message": "Null rate 0.0%"
+        },
+        {
+          "check": "outlier",
+          "severity": "ok",
+          "message": "Value range: -53764 – 148603 (p1=-18709, p99=111536)"
+        },
+        {
+          "check": "meta_fields",
+          "severity": "ok",
+          "message": "All required meta fields present"
+        }
+      ],
+      "row_count": 870,
+      "null_rate_pct": 0
+    },
+    {
+      "file": "cso_gfa03.json",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "row_count",
+          "severity": "ok",
+          "message": "1150 rows"
+        },
+        {
+          "check": "null_rate",
+          "severity": "ok",
+          "message": "Null rate 6.5%"
+        },
+        {
+          "check": "outlier",
+          "severity": "ok",
+          "message": "Value range: -64 – 148603 (p1=-23, p99=88838)"
+        },
+        {
+          "check": "meta_fields",
+          "severity": "ok",
+          "message": "All required meta fields present"
+        }
+      ],
+      "row_count": 1150,
+      "null_rate_pct": 6.5
+    },
+    {
+      "file": "cso_gfa04.json",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "row_count",
+          "severity": "ok",
+          "message": "950 rows"
+        },
+        {
+          "check": "null_rate",
+          "severity": "ok",
+          "message": "Null rate 0.0%"
+        },
+        {
+          "check": "outlier",
+          "severity": "ok",
+          "message": "Value range: -7760 – 125998 (p1=-3662, p99=102604)"
+        },
+        {
+          "check": "meta_fields",
+          "severity": "ok",
+          "message": "All required meta fields present"
+        }
+      ],
+      "row_count": 950,
+      "null_rate_pct": 0
+    },
+    {
+      "file": "cso_gfq01.json",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "row_count",
+          "severity": "ok",
+          "message": "3296 rows"
+        },
+        {
+          "check": "null_rate",
+          "severity": "ok",
+          "message": "Null rate 7.7%"
+        },
+        {
+          "check": "outlier",
+          "severity": "ok",
+          "message": "Value range: -17621 – 48514 (p1=-9359, p99=31607)"
+        },
+        {
+          "check": "meta_fields",
+          "severity": "ok",
+          "message": "All required meta fields present"
+        }
+      ],
+      "row_count": 3296,
+      "null_rate_pct": 7.7
+    },
+    {
+      "file": "cso_gfq03.json",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "row_count",
+          "severity": "ok",
+          "message": "4738 rows"
+        },
+        {
+          "check": "null_rate",
+          "severity": "ok",
+          "message": "Null rate 0.0%"
+        },
+        {
+          "check": "outlier",
+          "severity": "ok",
+          "message": "Value range: -109 – 46616 (p1=-6, p99=23155)"
+        },
+        {
+          "check": "meta_fields",
+          "severity": "ok",
+          "message": "All required meta fields present"
+        }
+      ],
+      "row_count": 4738,
+      "null_rate_pct": 0
+    },
+    {
+      "file": "cso_gfq04.json",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "row_count",
+          "severity": "ok",
+          "message": "3914 rows"
+        },
+        {
+          "check": "null_rate",
+          "severity": "ok",
+          "message": "Null rate 0.0%"
+        },
+        {
+          "check": "outlier",
+          "severity": "ok",
+          "message": "Value range: -1940 – 34515 (p1=-916, p99=26016)"
+        },
+        {
+          "check": "meta_fields",
+          "severity": "ok",
+          "message": "All required meta fields present"
+        }
+      ],
+      "row_count": 3914,
+      "null_rate_pct": 0
+    },
+    {
+      "file": "cso_na001.json",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "row_count",
+          "severity": "ok",
+          "message": "300 rows"
+        },
+        {
+          "check": "null_rate",
+          "severity": "ok",
+          "message": "Null rate 1.7%"
+        },
+        {
+          "check": "outlier",
+          "severity": "ok",
+          "message": "Value range: -165125 – 562794 (p1=-133977, p99=520718)"
+        },
+        {
+          "check": "meta_fields",
+          "severity": "ok",
+          "message": "All required meta fields present"
+        }
+      ],
+      "row_count": 300,
+      "null_rate_pct": 1.7
+    },
+    {
+      "file": "cso_na002.json",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "row_count",
+          "severity": "ok",
+          "message": "90 rows"
+        },
+        {
+          "check": "null_rate",
+          "severity": "ok",
+          "message": "Null rate 0.0%"
+        },
+        {
+          "check": "outlier",
+          "severity": "ok",
+          "message": "Value range: -99568 – 404288 (p1=-99568, p99=404288)"
+        },
+        {
+          "check": "meta_fields",
+          "severity": "ok",
+          "message": "All required meta fields present"
+        }
+      ],
+      "row_count": 90,
+      "null_rate_pct": 0
+    },
+    {
+      "file": "cso_ua19.json",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "row_count",
+          "severity": "ok",
+          "message": "132 rows"
+        },
+        {
+          "check": "null_rate",
+          "severity": "ok",
+          "message": "Null rate 2.3%"
+        },
+        {
+          "check": "outlier",
+          "severity": "ok",
+          "message": "Value range: 48 – 925 (p1=60, p99=912)"
+        },
+        {
+          "check": "meta_fields",
+          "severity": "ok",
+          "message": "All required meta fields present"
+        }
+      ],
+      "row_count": 132,
+      "null_rate_pct": 2.3
+    },
+    {
+      "file": "cso_ua42.json",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "row_count",
+          "severity": "ok",
+          "message": "486 rows"
+        },
+        {
+          "check": "null_rate",
+          "severity": "ok",
+          "message": "Null rate 0.0%"
+        },
+        {
+          "check": "outlier",
+          "severity": "ok",
+          "message": "Value range: 219 – 39734 (p1=241, p99=37024)"
+        },
+        {
+          "check": "meta_fields",
+          "severity": "ok",
+          "message": "All required meta fields present"
+        }
+      ],
+      "row_count": 486,
+      "null_rate_pct": 0
+    },
+    {
+      "file": "eurostat_hlth_sha11_hc.json",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "row_count",
+          "severity": "ok",
+          "message": "113158 rows"
+        },
+        {
+          "check": "null_rate",
+          "severity": "ok",
+          "message": "Null rate 0.0%"
+        },
+        {
+          "check": "outlier",
+          "severity": "ok",
+          "message": "Value range: 0 – 1719949.24 (p1=0, p99=138538.83)"
+        },
+        {
+          "check": "meta_fields",
+          "severity": "ok",
+          "message": "All required meta fields present"
+        }
+      ],
+      "row_count": 113158,
+      "null_rate_pct": 0
+    },
+    {
+      "file": "eurostat_hlth_sha11_hf.json",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "row_count",
+          "severity": "ok",
+          "message": "36566 rows"
+        },
+        {
+          "check": "null_rate",
+          "severity": "ok",
+          "message": "Null rate 0.0%"
+        },
+        {
+          "check": "outlier",
+          "severity": "ok",
+          "message": "Value range: 0 – 1719949.24 (p1=0, p99=345835.8)"
+        },
+        {
+          "check": "meta_fields",
+          "severity": "ok",
+          "message": "All required meta fields present"
+        }
+      ],
+      "row_count": 36566,
+      "null_rate_pct": 0
+    },
+    {
+      "file": "eurostat_ilc_di03.json",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "row_count",
+          "severity": "ok",
+          "message": "325464 rows"
+        },
+        {
+          "check": "null_rate",
+          "severity": "ok",
+          "message": "Null rate 0.0%"
+        },
+        {
+          "check": "outlier",
+          "severity": "ok",
+          "message": "Value range: 986 – 6386511 (p1=2414, p99=1942874)"
+        },
+        {
+          "check": "meta_fields",
+          "severity": "ok",
+          "message": "All required meta fields present"
+        }
+      ],
+      "row_count": 325464,
+      "null_rate_pct": 0
+    },
+    {
+      "file": "eurostat_ilc_li02.json",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "row_count",
+          "severity": "ok",
+          "message": "1097022 rows"
+        },
+        {
+          "check": "null_rate",
+          "severity": "ok",
+          "message": "Null rate 0.0%"
+        },
+        {
+          "check": "outlier",
+          "severity": "ok",
+          "message": "Value range: 0 – 126233 (p1=1, p99=24389)"
+        },
+        {
+          "check": "meta_fields",
+          "severity": "ok",
+          "message": "All required meta fields present"
+        }
+      ],
+      "row_count": 1097022,
+      "null_rate_pct": 0
+    },
+    {
+      "file": "eurostat_nama_10r_3gdp.json",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "row_count",
+          "severity": "ok",
+          "message": "1344 rows"
+        },
+        {
+          "check": "null_rate",
+          "severity": "ok",
+          "message": "Null rate 0.0%"
+        },
+        {
+          "check": "outlier",
+          "severity": "ok",
+          "message": "Value range: 57 – 279799.6 (p1=65, p99=174419.54)"
+        },
+        {
+          "check": "meta_fields",
+          "severity": "ok",
+          "message": "All required meta fields present"
+        }
+      ],
+      "row_count": 1344,
+      "null_rate_pct": 0
+    },
+    {
+      "file": "eurostat_prc_ppp_ind.json",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "row_count",
+          "severity": "ok",
+          "message": "1401572 rows"
+        },
+        {
+          "check": "null_rate",
+          "severity": "ok",
+          "message": "Null rate 0.0%"
+        },
+        {
+          "check": "outlier",
+          "severity": "ok",
+          "message": "Value range: 0 – 609432600 (p1=0.486828, p99=3725390)"
+        },
+        {
+          "check": "meta_fields",
+          "severity": "ok",
+          "message": "All required meta fields present"
+        }
+      ],
+      "row_count": 1401572,
+      "null_rate_pct": 0
+    },
+    {
+      "file": "ogp_awards.json",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "row_count",
+          "severity": "ok",
+          "message": "2362 rows"
+        },
+        {
+          "check": "thin_rows",
+          "severity": "ok",
+          "message": "Row completeness OK"
+        },
+        {
+          "check": "meta_fields",
+          "severity": "ok",
+          "message": "All required meta fields present"
+        }
+      ],
+      "row_count": 2362,
+      "columns": 11
+    },
+    {
+      "file": "ogp_etenders.json",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "row_count",
+          "severity": "ok",
+          "message": "100106 rows"
+        },
+        {
+          "check": "thin_rows",
+          "severity": "ok",
+          "message": "Row completeness OK"
+        },
+        {
+          "check": "meta_fields",
+          "severity": "ok",
+          "message": "All required meta fields present"
+        }
+      ],
+      "row_count": 100106,
+      "columns": 30
+    }
+  ],
+  "summary": {
+    "etl_ok": 0,
+    "etl_total": 0,
+    "qa_pass": 20,
+    "qa_warn": 0,
+    "qa_fail": 0
+  }
+}

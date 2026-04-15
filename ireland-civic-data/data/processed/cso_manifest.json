@@ -1,0 +1,66 @@
+{
+  "run_at": "2026-04-15T16:14:31.574Z",
+  "source": "CSO PxStat",
+  "results": [
+    {
+      "code": "CIRGDP01",
+      "status": "ok",
+      "values": 1890
+    },
+    {
+      "code": "CIRGDP03",
+      "status": "ok",
+      "values": 1400
+    },
+    {
+      "code": "NA001",
+      "status": "ok",
+      "values": 300
+    },
+    {
+      "code": "NA002",
+      "status": "ok",
+      "values": 90
+    },
+    {
+      "code": "UA19",
+      "status": "ok",
+      "values": 132
+    },
+    {
+      "code": "UA42",
+      "status": "ok",
+      "values": 486
+    },
+    {
+      "code": "GFQ01",
+      "status": "ok",
+      "values": 3296
+    },
+    {
+      "code": "GFA01",
+      "status": "ok",
+      "values": 870
+    },
+    {
+      "code": "GFQ03",
+      "status": "ok",
+      "values": 4738
+    },
+    {
+      "code": "GFA03",
+      "status": "ok",
+      "values": 1150
+    },
+    {
+      "code": "GFQ04",
+      "status": "ok",
+      "values": 3914
+    },
+    {
+      "code": "GFA04",
+      "status": "ok",
+      "values": 950
+    }
+  ]
+}

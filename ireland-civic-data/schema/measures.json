@@ -1,0 +1,236 @@
+{
+  "version": "1.0.0",
+  "description": "Canonical measure definitions for Ireland Civic Data Project. Every data point published on the site must map to one of these measure codes.",
+  "measures": [
+
+    // === IRELAND ON PAPER / IRELAND VS EU ===
+    {
+      "code": "GDP_PC_PPS",
+      "label": "GDP per capita (PPS)",
+      "description": "Gross Domestic Product per capita expressed in Purchasing Power Standards (EU=100). Severely distorted for Ireland by MNC activity. Never publish alone — always show alongside GNI_STAR_PC and AIC_PC_PPS.",
+      "unit": "PPS index (EU=100)",
+      "source": "Eurostat prc_ppp_ind",
+      "pillar": ["ireland_on_paper", "ireland_vs_eu"],
+      "geography": ["national"],
+      "caveat": "Ireland GDP inflated by MNC IP domiciling and redomiciled PLCs. Use GNI* for domestic economy size and AIC for welfare comparison."
+    },
+    {
+      "code": "GNI_STAR_PC",
+      "label": "GNI* per capita (Modified GNI)",
+      "description": "Modified Gross National Income per capita. Ireland-specific metric stripping out MNC distortions: IP depreciation, aircraft leasing, redomiciled PLC income. Best measure of Irish domestic economy size.",
+      "unit": "€ million / per capita €",
+      "source": "CSO PxStat — NIE tables",
+      "pillar": ["ireland_on_paper", "ireland_vs_eu"],
+      "geography": ["national"],
+      "caveat": "Ireland-specific metric only — cannot be directly compared to other EU countries' GDP. Use to show Ireland GDP/GNI* gap, use AIC_PC_PPS for cross-country comparison."
+    },
+    {
+      "code": "AIC_PC_PPS",
+      "label": "Actual Individual Consumption per capita (PPS)",
+      "description": "All goods and services actually consumed by households, whether paid for directly, by government, or by NGOs. Expressed in Purchasing Power Standards. Eurostat's recommended welfare comparison metric. Not distorted by MNC activity.",
+      "unit": "PPS index (EU=100)",
+      "source": "Eurostat prc_ppp_ind",
+      "pillar": ["ireland_on_paper", "ireland_vs_eu"],
+      "geography": ["national"],
+      "caveat": "National only — no regional breakdown available."
+    },
+    {
+      "code": "PRICE_LEVEL_INDEX",
+      "label": "Household consumption price level index",
+      "description": "Comparative price level index for household final consumption expenditure. EU average = 100. Ireland scored 138 in 2024 — 2nd highest in EU after Denmark.",
+      "unit": "Index (EU=100)",
+      "source": "Eurostat prc_ppp_ind",
+      "pillar": ["ireland_on_paper", "ireland_vs_eu"],
+      "geography": ["national"]
+    },
+    {
+      "code": "MEDIAN_DISP_INCOME",
+      "label": "Median equivalised disposable income",
+      "description": "Median net household income after taxes and transfers, adjusted for household size. Directly comparable across EU.",
+      "unit": "€ PPS",
+      "source": "Eurostat ilc_di03",
+      "pillar": ["ireland_on_paper", "ireland_vs_eu"],
+      "geography": ["national"]
+    },
+    {
+      "code": "POVERTY_RISK_RATE",
+      "label": "At-risk-of-poverty rate",
+      "description": "% of population with income below 60% of national median equivalised disposable income.",
+      "unit": "%",
+      "source": "Eurostat ilc_li02",
+      "pillar": ["ireland_on_paper", "ireland_vs_eu"],
+      "geography": ["national"]
+    },
+
+    // === REGIONAL ===
+    {
+      "code": "GVA_PC",
+      "label": "GVA per capita",
+      "description": "Gross Value Added per capita at basic prices. Preferred regional economic output measure — less distorted than GDP at regional level.",
+      "unit": "€",
+      "source": "CSO County Incomes & Regional GDP",
+      "pillar": ["regions", "ireland_on_paper"],
+      "geography": ["national", "nuts2", "nuts3", "county"],
+      "caveat": "County-level data is indicative only. Cork/Kerry suppressed — South-West NUTS3 only. Commuting distorts Mid-East and Dublin figures."
+    },
+    {
+      "code": "DISP_INCOME_PC",
+      "label": "Gross disposable income per capita",
+      "description": "Gross disposable income per person — closer to what residents actually receive than GVA.",
+      "unit": "€",
+      "source": "CSO County Incomes & Regional GDP",
+      "pillar": ["regions", "ireland_on_paper"],
+      "geography": ["national", "nuts2", "nuts3", "county"]
+    },
+
+    // === TAXES & REVENUE ===
+    {
+      "code": "INCOME_TAX_TOTAL",
+      "label": "Income tax receipts",
+      "description": "Total income tax receipts by year/month.",
+      "unit": "€ million",
+      "source": "Department of Finance Monthly Revenues",
+      "pillar": ["taxes_revenue"],
+      "geography": ["national"]
+    },
+    {
+      "code": "CORP_TAX_TOTAL",
+      "label": "Corporation tax receipts",
+      "description": "Total corporation tax receipts. Highly concentrated — top 10 payers account for majority of receipts.",
+      "unit": "€ million",
+      "source": "Department of Finance Monthly Revenues",
+      "pillar": ["taxes_revenue"],
+      "geography": ["national"],
+      "caveat": "Highly volatile and concentrated. Do not project trends without noting MNC dependency risk."
+    },
+    {
+      "code": "VAT_TOTAL",
+      "label": "VAT receipts",
+      "description": "Total VAT receipts.",
+      "unit": "€ million",
+      "source": "Department of Finance Monthly Revenues",
+      "pillar": ["taxes_revenue"],
+      "geography": ["national"]
+    },
+    {
+      "code": "TAX_REVENUE_TOTAL",
+      "label": "Total tax revenue",
+      "description": "Total government tax revenue across all heads.",
+      "unit": "€ million",
+      "source": "Department of Finance Monthly Revenues",
+      "pillar": ["taxes_revenue"],
+      "geography": ["national"]
+    },
+
+    // === PUBLIC SPENDING ===
+    {
+      "code": "DEPT_SPEND_GROSS",
+      "label": "Gross departmental expenditure",
+      "description": "Gross voted expenditure by government department or Vote.",
+      "unit": "€ million",
+      "source": "DPER Revised Estimates for Public Services",
+      "pillar": ["public_spending"],
+      "geography": ["national"]
+    },
+    {
+      "code": "CAPITAL_SPEND",
+      "label": "Capital expenditure",
+      "description": "Capital voted expenditure — investment in assets, infrastructure, etc.",
+      "unit": "€ million",
+      "source": "DPER Revised Estimates for Public Services",
+      "pillar": ["public_spending"],
+      "geography": ["national"]
+    },
+    {
+      "code": "CURRENT_SPEND",
+      "label": "Current expenditure",
+      "description": "Current voted expenditure — day-to-day running costs.",
+      "unit": "€ million",
+      "source": "DPER Revised Estimates for Public Services",
+      "pillar": ["public_spending"],
+      "geography": ["national"]
+    },
+    {
+      "code": "IPAS_SPEND",
+      "label": "IPAS accommodation expenditure",
+      "description": "State expenditure on International Protection Accommodation Service (asylum seeker accommodation). Flagship accountability case study.",
+      "unit": "€ million",
+      "source": "DPER / Department of Integration spending reports",
+      "pillar": ["public_spending", "procurement_contracts"],
+      "geography": ["national"],
+      "caveat": "Figures sourced from ministerial statements, parliamentary questions, and published accounts. Cross-reference multiple sources."
+    },
+
+    // === PROCUREMENT ===
+    {
+      "code": "CONTRACT_AWARD_VALUE",
+      "label": "Contract award value",
+      "description": "Value of a public contract awarded via eTenders.",
+      "unit": "€",
+      "source": "OGP eTenders open data",
+      "pillar": ["procurement_contracts"],
+      "geography": ["national"],
+      "caveat": "Only contracts over €25k required to be published. Award values sometimes missing or estimated."
+    },
+    {
+      "code": "CONTRACT_COUNT",
+      "label": "Contract count",
+      "description": "Number of contracts awarded by contracting authority, sector, or supplier.",
+      "unit": "count",
+      "source": "OGP eTenders open data",
+      "pillar": ["procurement_contracts"],
+      "geography": ["national"]
+    },
+
+    // === HEALTHCARE ===
+    {
+      "code": "HEALTH_SPEND_GDP_PCT",
+      "label": "Health expenditure as % of GDP",
+      "description": "Total health expenditure as a share of GDP. Use alongside AIC comparison — GDP distortion makes Ireland look like a high health spender.",
+      "unit": "% of GDP",
+      "source": "Eurostat hlth_sha11",
+      "pillar": ["healthcare", "ireland_vs_eu"],
+      "geography": ["national"],
+      "caveat": "GDP-based metric — inflated for Ireland. Supplement with per-capita absolute figures."
+    },
+    {
+      "code": "HEALTH_SPEND_PC",
+      "label": "Health expenditure per capita",
+      "description": "Total health expenditure per capita in PPS. Better cross-country comparison than % of GDP for Ireland.",
+      "unit": "€ PPS",
+      "source": "Eurostat hlth_sha11",
+      "pillar": ["healthcare", "ireland_vs_eu"],
+      "geography": ["national"]
+    },
+    {
+      "code": "HSE_SPEND_TOTAL",
+      "label": "HSE total expenditure",
+      "description": "Total HSE voted expenditure (pay + non-pay + capital).",
+      "unit": "€ million",
+      "source": "HSE Annual Report",
+      "pillar": ["healthcare"],
+      "geography": ["national"]
+    },
+
+    // === LOBBYING ===
+    {
+      "code": "LOBBYING_RETURN_COUNT",
+      "label": "Lobbying returns filed",
+      "description": "Number of lobbying returns filed in a given period, by organisation, sector, or policy area.",
+      "unit": "count",
+      "source": "SIPO Register of Lobbying",
+      "pillar": ["lobbying_influence"],
+      "geography": ["national"],
+      "caveat": "Self-reported. No financial disclosure. Returns due every 4 months."
+    },
+    {
+      "code": "LOBBYING_DPO_COUNT",
+      "label": "Designated Public Officials lobbied",
+      "description": "Number of unique DPOs (ministers, senior officials) lobbied per organisation or period.",
+      "unit": "count",
+      "source": "SIPO Register of Lobbying",
+      "pillar": ["lobbying_influence"],
+      "geography": ["national"]
+    }
+  ]
+}
